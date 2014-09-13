@@ -1,13 +1,21 @@
 package main.java.com.sciencescape.ds.db.rdbms.coredb;
 
+import java.io.PrintStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
+import main.java.com.sciencescape.ds.db.transfer.CoreDBOpException;
+import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
 /**
  * @class DenormalizedFields DenormalizedFields.java
- * @brief container class for all denormalized fields
+ * @brief container class for all de-normalized fields
  * @author Akshay
  *
  */
 public class DenormalizedFields {
+	// Fields from paper table
 	private long _id;
 	private long _pmId;
 	private String _doi;
@@ -27,9 +35,11 @@ public class DenormalizedFields {
 	private String _volume;
 	private long _nlmId;
 	private String _metadata_source;
-	private String _publisher;
 	private long _venueId;
-	private Map<Long, String> authors;
+	// Fields from venue table
+	private String _publisher;
+	// Fields from author table
+	private Map<Long, AuthorFields> _authors;
 	
 	public long get_id() {
 		return _id;
@@ -157,10 +167,110 @@ public class DenormalizedFields {
 	public void set_venueId(long _venueId) {
 		this._venueId = _venueId;
 	}
-	public Map<Long, String> getAuthors() {
-		return authors;
+	public Map<Long, AuthorFields> getAuthors() {
+		return _authors;
 	}
-	public void setAuthors(Map<Long, String> authors) {
-		this.authors = authors;
+	public void setAuthors(Map<Long, AuthorFields> authors) {
+		this._authors = authors;
 	}
+	
+	public void printFields(PrintStream stream) {
+		if (stream == null) {
+			return;
+		}
+		stream.printf(CoreDBConstants.Messages.MSG_INT_FIELD_FORMAT, CoreDBConstants.PaperFields.ID, _id);
+		stream.printf(CoreDBConstants.Messages.MSG_INT_FIELD_FORMAT, CoreDBConstants.PaperFields.PMID, _pmId);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.DOI, _doi);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.TITLE, _title);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.PM_DATE_RELEASED, _datePmReleased);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.ISSN, _issn);
+		stream.printf(CoreDBConstants.Messages.MSG_INT_FIELD_FORMAT, CoreDBConstants.PaperFields.YEAR, _year);
+		stream.printf(CoreDBConstants.Messages.MSG_INT_FIELD_FORMAT, CoreDBConstants.PaperFields.MONTH, _month);
+		stream.printf(CoreDBConstants.Messages.MSG_INT_FIELD_FORMAT, CoreDBConstants.PaperFields.DAY, _day);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.ISO, _iso);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.ISSUE, _issue);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.LANGUAGE, _language);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.TYPE, _type);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.JOURNAL_NAME, _journalName);
+		stream.printf(CoreDBConstants.Messages.MSG_FLOAT_FIELD_FORMAT, CoreDBConstants.PaperFields.EIGENFACTOR, _eigenFactor);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.COUNTRY, _country);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.VOLUME, _volume);
+		stream.printf(CoreDBConstants.Messages.MSG_INT_FIELD_FORMAT, CoreDBConstants.PaperFields.NLM_ID, _nlmId);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.METADATA_SOURCE, _metadata_source);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.VENUE_ID, _venueId);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.VenueFields.PUBLISHER, _publisher);
+		// print authors
+		printAuthors(stream);
+	}
+
+	public void printAuthors(PrintStream stream) {
+		if (stream == null || _authors == null) {
+			return;
+		}
+		for (Map.Entry<Long, AuthorFields> entry : _authors.entrySet()) {
+			stream.printf(CoreDBConstants.Messages.MSG_AUTHOR_ID_FORMAT, entry.getKey());
+			stream.printf(CoreDBConstants.Messages.MSG_AUTHOR_NAME_FORMAT, (entry.getValue()).get_name());
+		}
+	}
+	
+	public void populatePaperFields(ResultSet rs) throws CoreDBOpException  {
+		if (rs == null) {
+			throw new CoreDBOpException(CoreDBConstants.Messages.RESULTSET_NULL_MSG);
+		}
+		try {
+			_id = rs.getLong(CoreDBConstants.PaperFields.ID);
+			_pmId = rs.getLong(CoreDBConstants.PaperFields.PMID);
+			_doi = rs.getString(CoreDBConstants.PaperFields.DOI);
+			_title = rs.getString(CoreDBConstants.PaperFields.TITLE);
+			_datePmReleased = rs.getString(CoreDBConstants.PaperFields.PM_DATE_RELEASED);
+			_issn = rs.getString(CoreDBConstants.PaperFields.ISSN);
+			_year = rs.getInt(CoreDBConstants.PaperFields.YEAR);
+			_month = rs.getInt(CoreDBConstants.PaperFields.MONTH);
+			_day = rs.getInt(CoreDBConstants.PaperFields.DAY);
+			_iso = rs.getString(CoreDBConstants.PaperFields.ISO);
+			_issue = rs.getString(CoreDBConstants.PaperFields.ISSUE);
+			_language = rs.getString(CoreDBConstants.PaperFields.LANGUAGE);
+			_type = rs.getString(CoreDBConstants.PaperFields.TYPE);
+			_journalName = rs.getString(CoreDBConstants.PaperFields.JOURNAL_NAME);
+			_eigenFactor = rs.getFloat(CoreDBConstants.PaperFields.EIGENFACTOR);
+			_country = rs.getString(CoreDBConstants.PaperFields.COUNTRY);
+			_volume = rs.getString(CoreDBConstants.PaperFields.VOLUME);
+			_nlmId = rs.getLong(CoreDBConstants.PaperFields.NLM_ID);
+			_metadata_source = rs.getString(CoreDBConstants.PaperFields.METADATA_SOURCE);
+			_venueId = rs.getLong(CoreDBConstants.PaperFields.VENUE_ID);
+		} catch (SQLException e) {
+			throw new CoreDBOpException(e.getMessage());
+		}
+	}
+	
+	public void populateVenueFields(ResultSet rs) throws CoreDBOpException  {
+		if (rs == null) {
+			throw new CoreDBOpException(CoreDBConstants.Messages.RESULTSET_NULL_MSG);
+		}
+		try {
+			// move resultSet to first row
+			rs.next();
+			_publisher = rs.getString(CoreDBConstants.VenueFields.PUBLISHER);
+		} catch (SQLException e) {
+			throw new CoreDBOpException(e.getMessage());
+		}
+	}
+	
+	public void populateAuthorFields(ResultSet rs) throws CoreDBOpException  {
+		if (rs == null) {
+			throw new CoreDBOpException(CoreDBConstants.Messages.RESULTSET_NULL_MSG);
+		}
+		Map<Long, AuthorFields> authors = new LinkedHashMap<Long, AuthorFields>();
+		try {
+			while (rs.next()) {
+				long id = rs.getLong(CoreDBConstants.PaperToAuthorFields.AUTHOR_ID);
+				String name = rs.getString(CoreDBConstants.AuthorFields.NAME);
+				authors.put(id, new AuthorFields(name));
+			}
+			_authors = authors;
+		} catch (SQLException e) {
+			throw new CoreDBOpException(e.getMessage());
+		}
+	}
+
 }

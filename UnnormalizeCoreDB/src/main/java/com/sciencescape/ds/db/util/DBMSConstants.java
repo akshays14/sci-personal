@@ -29,6 +29,7 @@ public class DBMSConstants {
 		public static final String MYSQL_CONNECTION_NULL_MESSAGE = "Given MySQL Connection object is null";
 		public static final String QUERY_NULL_MESSAGE = "Given query is null";
 		public static final String PMID_NULL_MESSAGE = "Given pm id is null";
+		public static final String VENUE_ID_NULL_MESSAGE = "Given venue id is null";
 	}
 	
 	public static class MySQLKeyWords {
@@ -39,5 +40,9 @@ public class DBMSConstants {
 		public static final String ALL = "*";
 		public static final String EQUALS = "=";
 		public static final String LIMIT = "LIMIT";
+		public static final String DOT = ".";
+		public static final String COMMA = ",";
+		public static final String INNER_JOIN= "INNER JOIN";
+		public static final String ON= "ON";
 	}
 }

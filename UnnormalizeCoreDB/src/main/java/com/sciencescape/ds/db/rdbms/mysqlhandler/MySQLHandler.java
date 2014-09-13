@@ -73,6 +73,13 @@ public class MySQLHandler {
 		_dbUser = username;
 		_dbPassword = password;
 		_dbName = database;
+		
+		// connect to database
+		try {
+			connect();
+		} catch (IOException e) {
+			throw new JDBCException(e.getMessage());
+		}
 	}
 
 	/**
@@ -110,14 +117,14 @@ public class MySQLHandler {
 	/**
 	 * readRecord implementation of {@link MySQLHandler}
 	 */
-	public DataRecord readRecord() throws IOException {
+	public DataRecord readRecord(String tableName, String[] cols) throws IOException {
 		if (_resultSet == null) {
 			//Create SQL statement, execute the query and store the resultset instance.
 			StringBuilder strBuff = new StringBuilder("SELECT ");
-			for (int i = 0; i < _cols.length - 1; i++) {
-				strBuff.append(_cols[i]).append(",");
+			for (int i = 0; i < cols.length - 1; i++) {
+				strBuff.append(cols[i]).append(",");
 			}
-			strBuff.append(_cols[_cols.length - 1]).append(" FROM ").append(_tableName).append(" limit 10");
+			strBuff.append(cols[cols.length - 1]).append(" FROM ").append(tableName).append(" limit 10");
 			System.err.println("Query : " + strBuff.toString());
 			try {
 				_resultSet = _dbConnection.createStatement().executeQuery(strBuff.toString());
@@ -130,9 +137,9 @@ public class MySQLHandler {
 			if (!_resultSet.next()) {
 				return null;
 			}
-			Object data[] = new Object[_cols.length];
-			for(int i=0;i<_cols.length;i++) {
-				data[i] = _resultSet.getObject(_cols[i]);
+			Object data[] = new Object[cols.length];
+			for(int i=0;i<cols.length;i++) {
+				data[i] = _resultSet.getObject(cols[i]);
 			}
 			return new DataRecord(data);
 		} catch (SQLException exp) {

@@ -2,15 +2,13 @@ package main.java.com.sciencescape.ds.db.rdbms.coredb;
 
 public class AuthorFields {
 
-	private String _id;
 	private String _name;
+
+	public AuthorFields(String _name) {
+		super();
+		this._name = _name;
+	}
 	
-	public String get_id() {
-		return _id;
-	}
-	public void set_id(String _id) {
-		this._id = _id;
-	}
 	public String get_name() {
 		return _name;
 	}

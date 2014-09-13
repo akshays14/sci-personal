@@ -14,14 +14,15 @@ public class DataTransfer  {
 		MySQLHandler my = null;
 		try {
 			my = new MySQLHandler("54.81.251.153", 3306, "ds-team", "DsTeamSQL", 
-					"core_db", "venue_to_metadata", mySQLCols);
+					"core_db");
 			
 		} catch (JDBCException e) {
 			System.err.println("Could not create MySQLHandler : " + e.getMessage());
 			e.printStackTrace();
 			return;
 		}
-		try {
+		
+/*		try {
 			my.connect();
 			DataRecord rec = my.readRecord();
 			while (rec != null) {
@@ -35,5 +36,5 @@ public class DataTransfer  {
 			ex.printStackTrace();
 			return;
 		}
-	}
+*/	}
 }
