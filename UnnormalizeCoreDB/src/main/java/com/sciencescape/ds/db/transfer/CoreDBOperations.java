@@ -55,7 +55,7 @@ public class CoreDBOperations {
 				// populate the DenormalizedFields object with venue fields
 				denormFields.populateAuthorFields(authorSet);
 				// TODO: remove later .. print the fields (for sanity)
-				denormFields.printFields(System.out);
+				//denormFields.printFields(System.out);
 			}
 			
 			recordsProcessed++;
