@@ -31,6 +31,9 @@ public class CoreDBOperations {
 		ResultSet paperSet = null;
 		ResultSet venueSet = null;
 		ResultSet authorSet = null;
+		ResultSet instituteSet = null;
+		ResultSet fieldSet = null;
+		
 		DenormalizedFields denormFields = new DenormalizedFields();
 		// get the numOfRecords records from paper table
 		try {
@@ -54,6 +57,16 @@ public class CoreDBOperations {
 				authorSet = getAuthors(paperId);
 				// populate the DenormalizedFields object with venue fields
 				denormFields.populateAuthorFields(authorSet);
+				// get institute info for this paper
+				instituteSet = getInstitute(paperId);
+				// populate the DenormalizedFields object with institute fields
+				denormFields.populateInstituteFields(instituteSet);
+				// populate sections (NOTE: randomly generated currently)
+				denormFields.populateFullTextSections(6, 300);
+				// get fields for this paper
+				fieldSet = getFields(paperId);
+				// populate the DenormalizedFields object with fields
+				denormFields.populateFieldsFields(fieldSet);
 				// TODO: remove later .. print the fields (for sanity)
 				//denormFields.printFields(System.out);
 			}
@@ -243,43 +256,86 @@ public class CoreDBOperations {
 		ResultSet resultSet = null;
 
 		//Create SQL statement
-		/* select paper_to_author.id_author, author.name 
-		 * from paper_to_author INNER JOIN author 
-		 * ON paper_to_author.id_author = author.id 
-		 * where paper_to_author.id_paper=1033; */
+		/* select paper_to_institution.proto_affiliation, paper_to_institution.id_institution, institution.name 
+		 * from paper_to_institution INNER JOIN institution 
+		 * ON paper_to_institution.id_institution = institution.id 
+		 * where paper_to_institution.id_paper = 8560263; */
 		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.Tables.PAPER_TO_AUTHOR);
+		strBuff.append(CoreDBConstants.Tables.PAPER_TO_INSTITUTION);
 		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.PaperToAuthorFields.AUTHOR_ID);
+		strBuff.append(CoreDBConstants.PaperToInstitutionFields.AFFILIATION_PROTO);
 		strBuff.append(DBMSConstants.MySQLKeyWords.COMMA);
-		strBuff.append(CoreDBConstants.Tables.AUTHOR);
+		strBuff.append(CoreDBConstants.Tables.PAPER_TO_INSTITUTION);
 		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.AuthorFields.NAME);
+		strBuff.append(CoreDBConstants.PaperToInstitutionFields.INSITUTION_ID);
+		strBuff.append(DBMSConstants.MySQLKeyWords.COMMA);
+		strBuff.append(CoreDBConstants.Tables.INSTITUTION);
+		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
+		strBuff.append(CoreDBConstants.InstitutionFields.NAME);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.Tables.PAPER_TO_AUTHOR);
+		strBuff.append(CoreDBConstants.Tables.PAPER_TO_INSTITUTION);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.INNER_JOIN);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.Tables.AUTHOR);
+		strBuff.append(CoreDBConstants.Tables.INSTITUTION);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.ON);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.Tables.PAPER_TO_AUTHOR);
+		strBuff.append(CoreDBConstants.Tables.PAPER_TO_INSTITUTION);
 		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.PaperToAuthorFields.AUTHOR_ID);
+		strBuff.append(CoreDBConstants.PaperToInstitutionFields.INSITUTION_ID);
 		strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
-		strBuff.append(CoreDBConstants.Tables.AUTHOR);
+		strBuff.append(CoreDBConstants.Tables.INSTITUTION);
 		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.AuthorFields.ID);
+		strBuff.append(CoreDBConstants.InstitutionFields.ID);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.WHERE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.Tables.PAPER_TO_AUTHOR);
+		strBuff.append(CoreDBConstants.Tables.PAPER_TO_INSTITUTION);
 		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.PaperToAuthorFields.PAPER_ID);
+		strBuff.append(CoreDBConstants.PaperToInstitutionFields.PAPER_ID);
+		strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
+		strBuff.append(pmId);
+
+		query = strBuff.toString();
+		logger.info("Query issued {}", query);
+		System.err.println(query);
+		try {
+			resultSet = _my.executeQuery(query);
+		} catch (IOException e) {
+			throw new MySQLOpException(e.getMessage());
+		}
+		return (resultSet);
+	}
+	
+	private ResultSet getFields(String pmId) throws MySQLOpException {	
+		if (pmId == null) {
+			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
+		}
+		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
+		String query = null;
+		ResultSet resultSet = null;
+
+		//Create SQL statement
+		/*
+		 * select id_field, field_name from paper_to_field where id_paper = pmid
+		 */
+		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.PaperToFieldFields.FIELD_ID);
+		strBuff.append(DBMSConstants.MySQLKeyWords.COMMA);
+		strBuff.append(CoreDBConstants.PaperToFieldFields.FIELD_NAME);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.Tables.PAPER_TO_FIELD);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.WHERE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.PaperToFieldFields.PAPER_ID);
 		strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
 		strBuff.append(pmId);
 

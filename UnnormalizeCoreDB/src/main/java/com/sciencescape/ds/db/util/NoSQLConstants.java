@@ -19,4 +19,39 @@ public class NoSQLConstants {
 		public static final String HBASE_HDFS_DIR = "hdfs://10.100.0.120:8020/hbase";
 		public static final String HBASE_DISTRIBUTED_MODE = "true";
 	}
+	
+	public static class ColumnFamilies {
+		public static final String PMID = "PMID";
+		public static final String DOI = "DOI";
+		public static final String TITLE = "TITLE";
+		public static final String DATE_PM_RELEASED = "DATE_PM_RELEASED";
+		public static final String ISSN = "ISSN";
+		public static final String DATE = "DATE";
+		public static final String ISO = "ISO";
+		public static final String ISSUE = "ISSUE";
+		public static final String LANGUAGE = "LANGUAGE";
+		public static final String TYPE = "TYPE";
+		public static final String JOURNAL = "JOURNAL";
+		public static final String EIGENFACTOR = "EF";
+		public static final String LOCATION = "LOCATION";
+		public static final String VOULME = "VOLUME";
+		public static final String NLM = "NLM";
+		public static final String MD = "MD";
+		public static final String AUTHORS = "AUTHORS";
+		public static final String INSTOITUTION = "INSTITUTIONS";
+		public static final String ABTSRACT = "ABSTRACT";
+		public static final String SECTIONS = "SECTIONS";
+		public static final String PRODUCTS = "PRODUCTS";
+		public static final String FIELDS = "FIELDS";
+		public static final String CITATIONS = "CITATIONS";
+		public static final String IMPORT_INFO = "IMPORTINFO";
+	}
+	
+	public static class Columns {
+		public static final String ID = "id";
+		public static final String VALUE = "value";
+		public static final String YEAR = "year";
+		public static final String MONTH = "month";
+		public static final String DAY = "day";
+	}
 }

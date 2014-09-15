@@ -7,11 +7,14 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.omg.CORBA.INITIALIZE;
 
 import main.java.com.sciencescape.ds.db.rdbms.common.DataContainer;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataReader;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataWriter;
+import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
+import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
 import main.java.com.sciencescape.ds.db.util.NoSQLConstants;
 
 /**
@@ -135,6 +138,32 @@ public class HbaseHandler implements DataReader, DataWriter {
 		}
 	}
 
+	public void writeRecord(DenormalizedFields df) throws IOException {
+		if (_table == null) {
+			initalizeWriter();
+		}
+		if (df == null) {
+			throw new IOException("Given DenormalizedFields object is null");
+		}
+		// User paper ID as key
+		Put p = =new Put(Bytes.toBytes(df.get_id()));
+		// add pmid
+		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.PMID), Bytes.toBytes(NoSQLConstants.Columns.ID), df.get_pmId());
+		// add DOI
+		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DOI), Bytes.toBytes(NoSQLConstants.Columns.ID), df.get_doi());
+		// add title
+		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.TITLE), Bytes.toBytes(NoSQLConstants.Columns.VALUE), df.get_title());
+		// add pubmed release date
+		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE_PM_RELEASED), Bytes.toBytes(NoSQLConstants.Columns.VALUE), df.get_datePmReleased());
+		// add issn
+		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.ISSN), Bytes.toBytes(NoSQLConstants.Columns.VALUE), df.get_issn());
+		// add date
+		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE), Bytes.toBytes(NoSQLConstants.Columns.YEAR), df.get_year());
+		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE), Bytes.toBytes(NoSQLConstants.Columns.MONTH), df.get_month());
+		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE), Bytes.toBytes(NoSQLConstants.Columns.DAY), df.get_day());
+		// add iso
+	}
+	
 	/**
 	 * Implements readRecord method of DataReader
 	 * @todo to be implemented 

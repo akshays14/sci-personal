@@ -18,8 +18,11 @@ public class CoreDBConstants {
 	public static class Tables {
 		public static final String PAPER = "paper";
 		public static final String VENUE = "venue";
-		public static final Object PAPER_TO_AUTHOR = "paper_to_author";
-		public static final Object AUTHOR = "author";
+		public static final String PAPER_TO_AUTHOR = "paper_to_author";
+		public static final String AUTHOR = "author";
+		public static final String PAPER_TO_INSTITUTION = "paper_to_institution";
+		public static final String INSTITUTION = "institution";
+		public static final String PAPER_TO_FIELD = "paper_to_field";
 	}
 	
 	/**
@@ -87,6 +90,42 @@ public class CoreDBConstants {
 	}
 
 	/**
+	 * @brief enlist fields of paper_to_institution table in core-db
+	 * @author Akshay
+	 *
+	 * Class enlisting fields of interest in paper_to_institution table in core-db.
+	 */
+	public static class PaperToInstitutionFields {
+		public static final String AFFILIATION_PROTO = "proto_affiliation";
+		public static final String INSITUTION_ID = "id_institution";
+		public static final String PAPER_ID = "id_paper";
+		public static final String RAW_AFFILIATION_DELIMITER = ":";
+	}
+
+	/**
+	 * @brief enlist fields of institution table in core-db
+	 * @author Akshay
+	 *
+	 * Class enlisting fields of author in institution table in core-db.
+	 */
+	public static class InstitutionFields {
+		public static final String ID = "id";
+		public static final String NAME = "name";
+	}
+
+	/**
+	 * @brief enlist fields of paper_to_field table in core-db
+	 * @author Akshay
+	 *
+	 * Class enlisting fields of interest in paper_to_field table in core-db.
+	 */
+	public static class PaperToFieldFields {
+		public static final String FIELD_NAME = "field_name";
+		public static final String PAPER_ID = "id_paper";
+		public static final String FIELD_ID = "id_field";
+	}
+
+	/**
 	 * @brief enlist all the user messages for CoreDB
 	 * @author akshay
 	 *
@@ -101,5 +140,10 @@ public class CoreDBConstants {
 		public static final String MSG_FLOAT_FIELD_FORMAT = "%s : %f%n";
 		public static final String MSG_AUTHOR_ID_FORMAT = "Author-ID : %d%n";
 		public static final String MSG_AUTHOR_NAME_FORMAT = "\t%s%n";
+		public static final String MSG_INSTITUTION_ID_FORMAT = "Institution-ID : %d%n";
+		public static final String MSG_INSTITUTION_RAW_AFFILIATION_FORMAT = "\t%s%n";
+		public static final String MSG_INSTITUTION_NORM_AFFILIATION_FORMAT = "\t%s%n";
+		public static final String MSG_FIELD_ID_FORMAT = "Field-ID : %d%n";
+		public static final String MSG_FIELD_NAME_FORMAT = "\t%s%n";
 	}
 }

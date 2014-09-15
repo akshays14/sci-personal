@@ -3,11 +3,16 @@ package main.java.com.sciencescape.ds.db.rdbms.coredb;
 import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.sun.xml.internal.bind.api.RawAccessor;
+
+import sun.security.ec.ECDSASignature.Raw;
 import main.java.com.sciencescape.ds.db.transfer.CoreDBOpException;
 import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
+import main.java.com.sciencescape.ds.db.util.RandomText;
 /**
  * @class DenormalizedFields DenormalizedFields.java
  * @brief container class for all de-normalized fields
@@ -40,6 +45,14 @@ public class DenormalizedFields {
 	private String _publisher;
 	// Fields from author table
 	private Map<Long, AuthorFields> _authors;
+	// Field from institute table
+	private Map<Long, InstitutionFields> _institution;
+	// Fields from paper table
+	private String _abstract;
+	// Fields from full-text
+	private String[] _sections;
+	// Fields from fields table
+	private Map<Long, FieldsFields> _fields;
 	
 	public long get_id() {
 		return _id;
@@ -201,6 +214,10 @@ public class DenormalizedFields {
 		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.VenueFields.PUBLISHER, _publisher);
 		// print authors
 		printAuthors(stream);
+		// print institution info
+		printInstitution(stream);
+		// print fields info
+		printFieldsInfo(stream);
 	}
 
 	public void printAuthors(PrintStream stream) {
@@ -210,6 +227,27 @@ public class DenormalizedFields {
 		for (Map.Entry<Long, AuthorFields> entry : _authors.entrySet()) {
 			stream.printf(CoreDBConstants.Messages.MSG_AUTHOR_ID_FORMAT, entry.getKey());
 			stream.printf(CoreDBConstants.Messages.MSG_AUTHOR_NAME_FORMAT, (entry.getValue()).get_name());
+		}
+	}
+	
+	public void printInstitution(PrintStream stream) {
+		if (stream == null || _institution == null) {
+			return;
+		}
+		for (Map.Entry<Long, InstitutionFields> entry : _institution.entrySet()) {
+			stream.printf(CoreDBConstants.Messages.MSG_INSTITUTION_ID_FORMAT, entry.getKey());
+			stream.printf(CoreDBConstants.Messages.MSG_INSTITUTION_RAW_AFFILIATION_FORMAT, (entry.getValue()).get_rawAffiliationName());
+			stream.printf(CoreDBConstants.Messages.MSG_INSTITUTION_NORM_AFFILIATION_FORMAT, (entry.getValue()).get_normalizedAffiliationName());
+		}
+	}
+
+	public void printFieldsInfo(PrintStream stream) {
+		if (stream == null || _fields == null) {
+			return;
+		}
+		for (Map.Entry<Long, FieldsFields> entry : _fields.entrySet()) {
+			stream.printf(CoreDBConstants.Messages.MSG_FIELD_ID_FORMAT, entry.getKey());
+			stream.printf(CoreDBConstants.Messages.MSG_FIELD_NAME_FORMAT, (entry.getValue()).get_fieldName());
 		}
 	}
 	
@@ -238,6 +276,8 @@ public class DenormalizedFields {
 			_nlmId = rs.getLong(CoreDBConstants.PaperFields.NLM_ID);
 			_metadata_source = rs.getString(CoreDBConstants.PaperFields.METADATA_SOURCE);
 			_venueId = rs.getLong(CoreDBConstants.PaperFields.VENUE_ID);
+			_abstract = rs.getString(CoreDBConstants.PaperFields.ABSTRACT);
+			
 		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());
 		}
@@ -273,4 +313,51 @@ public class DenormalizedFields {
 		}
 	}
 
+	public void populateInstituteFields(ResultSet rs) throws CoreDBOpException  {
+		if (rs == null) {
+			throw new CoreDBOpException(CoreDBConstants.Messages.RESULTSET_NULL_MSG);
+		}
+		Map<Long, InstitutionFields> institution = new HashMap<Long, InstitutionFields>();
+		try {
+			while (rs.next()) {
+				long id = rs.getLong(CoreDBConstants.PaperToInstitutionFields.INSITUTION_ID);
+				String rawAffiliation = rs.getString(CoreDBConstants.PaperToInstitutionFields.AFFILIATION_PROTO);
+				String normAffiliation = rs.getString(CoreDBConstants.InstitutionFields.NAME);
+				// since raw string has other information chop extra-stuff off
+				if (rawAffiliation != null && rawAffiliation.contains(CoreDBConstants.PaperToInstitutionFields.RAW_AFFILIATION_DELIMITER)) {
+					rawAffiliation = (rawAffiliation.split(CoreDBConstants.PaperToInstitutionFields.RAW_AFFILIATION_DELIMITER))[1];
+				}
+				institution.put(id, new InstitutionFields(rawAffiliation, normAffiliation));
+			}
+			_institution = institution;
+		} catch (SQLException e) {
+			throw new CoreDBOpException(e.getMessage());
+		}
+	}
+
+	public void populateFullTextSections(int numOfSection, int lengthOfSection) throws CoreDBOpException  {
+		String[] sections = new String[numOfSection];
+		RandomText random = new RandomText();
+		for (int i = 0; i < numOfSection; ++i) {
+			sections[i] = random.generateText(lengthOfSection);
+		}
+		_sections = sections;
+	}
+
+	public void populateFieldsFields(ResultSet rs) throws CoreDBOpException  {
+		if (rs == null) {
+			throw new CoreDBOpException(CoreDBConstants.Messages.RESULTSET_NULL_MSG);
+		}
+		Map<Long, FieldsFields> fields = new HashMap<Long, FieldsFields>();
+		try {
+			while (rs.next()) {
+				long id = rs.getLong(CoreDBConstants.PaperToFieldFields.FIELD_ID);
+				String name = rs.getString(CoreDBConstants.PaperToFieldFields.FIELD_NAME);
+				fields.put(id, new FieldsFields(name));
+			}
+			_fields = fields;
+		} catch (SQLException e) {
+			throw new CoreDBOpException(e.getMessage());
+		}
+	}
 }
