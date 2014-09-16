@@ -7,9 +7,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.sun.xml.internal.bind.api.RawAccessor;
-
-import sun.security.ec.ECDSASignature.Raw;
 import main.java.com.sciencescape.ds.db.transfer.CoreDBOpException;
 import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
 import main.java.com.sciencescape.ds.db.util.RandomText;
@@ -39,7 +36,7 @@ public class DenormalizedFields {
 	private String _country;
 	private String _volume;
 	private long _nlmId;
-	private String _metadata_source;
+	private String _metadataSource;
 	private long _venueId;
 	// Fields from venue table
 	private String _publisher;
@@ -53,6 +50,8 @@ public class DenormalizedFields {
 	private String[] _sections;
 	// Fields from fields table
 	private Map<Long, FieldsFields> _fields;
+	// Field from paper table
+	private String _dateImported;
 	
 	public long get_id() {
 		return _id;
@@ -162,11 +161,11 @@ public class DenormalizedFields {
 	public void set_nlmId(long _nlmId) {
 		this._nlmId = _nlmId;
 	}
-	public String get_metadata_source() {
-		return _metadata_source;
+	public String get_metadataSource() {
+		return _metadataSource;
 	}
-	public void set_metadata_source(String _metadata_source) {
-		this._metadata_source = _metadata_source;
+	public void set_metadataSource(String _metadata_source) {
+		this._metadataSource = _metadata_source;
 	}
 	public String get_publisher() {
 		return _publisher;
@@ -180,13 +179,42 @@ public class DenormalizedFields {
 	public void set_venueId(long _venueId) {
 		this._venueId = _venueId;
 	}
-	public Map<Long, AuthorFields> getAuthors() {
+	public Map<Long, AuthorFields> get_authors() {
 		return _authors;
 	}
-	public void setAuthors(Map<Long, AuthorFields> authors) {
+	public void set_authors(Map<Long, AuthorFields> authors) {
 		this._authors = authors;
 	}
-	
+	public Map<Long, InstitutionFields> get_institution() {
+		return _institution;
+	}
+	public void set_institution(Map<Long, InstitutionFields> _institution) {
+		this._institution = _institution;
+	}
+	public String get_abstract() {
+		return _abstract;
+	}
+	public void set_abstract(String _abstract) {
+		this._abstract = _abstract;
+	}
+	public String[] get_sections() {
+		return _sections;
+	}
+	public void set_sections(String[] _sections) {
+		this._sections = _sections;
+	}
+	public Map<Long, FieldsFields> get_fields() {
+		return _fields;
+	}
+	public void set_fields(Map<Long, FieldsFields> _fields) {
+		this._fields = _fields;
+	}
+	public String get_dateImported() {
+		return _dateImported;
+	}
+	public void set_dateImported(String _dateImported) {
+		this._dateImported = _dateImported;
+	}
 	public void printFields(PrintStream stream) {
 		if (stream == null) {
 			return;
@@ -209,7 +237,7 @@ public class DenormalizedFields {
 		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.COUNTRY, _country);
 		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.VOLUME, _volume);
 		stream.printf(CoreDBConstants.Messages.MSG_INT_FIELD_FORMAT, CoreDBConstants.PaperFields.NLM_ID, _nlmId);
-		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.METADATA_SOURCE, _metadata_source);
+		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.METADATA_SOURCE, _metadataSource);
 		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.PaperFields.VENUE_ID, _venueId);
 		stream.printf(CoreDBConstants.Messages.MSG_STRING_FIELD_FORMAT, CoreDBConstants.VenueFields.PUBLISHER, _publisher);
 		// print authors
@@ -274,7 +302,7 @@ public class DenormalizedFields {
 			_country = rs.getString(CoreDBConstants.PaperFields.COUNTRY);
 			_volume = rs.getString(CoreDBConstants.PaperFields.VOLUME);
 			_nlmId = rs.getLong(CoreDBConstants.PaperFields.NLM_ID);
-			_metadata_source = rs.getString(CoreDBConstants.PaperFields.METADATA_SOURCE);
+			_metadataSource = rs.getString(CoreDBConstants.PaperFields.METADATA_SOURCE);
 			_venueId = rs.getLong(CoreDBConstants.PaperFields.VENUE_ID);
 			_abstract = rs.getString(CoreDBConstants.PaperFields.ABSTRACT);
 			

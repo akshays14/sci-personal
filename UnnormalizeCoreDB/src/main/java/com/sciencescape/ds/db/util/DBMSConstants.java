@@ -42,7 +42,10 @@ public class DBMSConstants {
 		public static final String LIMIT = "LIMIT";
 		public static final String DOT = ".";
 		public static final String COMMA = ",";
-		public static final String INNER_JOIN= "INNER JOIN";
-		public static final String ON= "ON";
-	}
+		public static final String INNER_JOIN = "INNER JOIN";
+		public static final String ON = "ON";
+		public static final String GREATER_THAN = ">";
+		public static final String LESS_THAN_EQUAL_TO = "<=";
+		public static final String AND = "AND";
+	}	
 }

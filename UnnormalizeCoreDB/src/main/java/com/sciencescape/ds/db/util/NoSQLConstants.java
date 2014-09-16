@@ -37,8 +37,9 @@ public class NoSQLConstants {
 		public static final String VOULME = "VOLUME";
 		public static final String NLM = "NLM";
 		public static final String MD = "MD";
+		public static final String VENUE = "VENUE";
 		public static final String AUTHORS = "AUTHORS";
-		public static final String INSTOITUTION = "INSTITUTIONS";
+		public static final String INSTITUTION = "INSTITUTION";
 		public static final String ABTSRACT = "ABSTRACT";
 		public static final String SECTIONS = "SECTIONS";
 		public static final String PRODUCTS = "PRODUCTS";
@@ -53,5 +54,16 @@ public class NoSQLConstants {
 		public static final String YEAR = "year";
 		public static final String MONTH = "month";
 		public static final String DAY = "day";
+		public static final String COUNTRY = "country";
+		public static final String SOURCE = "source";
+		public static final String PUBLISHER = "publisher";
+	}
+	
+	public static class ColumnKeyWords {
+		public static final String AUTHOR_NAME = "_name";
+		public static final String RAW_AFFILIATION = "_rawAff";
+		public static final String NORM_AFFILIATION = "_normAff";
+		public static final String FIELD_NAME = "_name";
+		public static final String IMPORT_DATE = "date";
 	}
 }

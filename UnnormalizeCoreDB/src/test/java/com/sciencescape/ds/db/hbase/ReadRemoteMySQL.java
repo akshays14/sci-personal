@@ -28,7 +28,7 @@ public class ReadRemoteMySQL {
 		}
 		// get first (2) denormalized fields from CoreDB
 		try {
-			core.getDenormalizedFields(2);
+			core.getDenormalizedFields(1, 10);
 		} catch (CoreDBOpException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

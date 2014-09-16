@@ -125,7 +125,7 @@ public class MySQLHandler {
 				strBuff.append(cols[i]).append(",");
 			}
 			strBuff.append(cols[cols.length - 1]).append(" FROM ").append(tableName).append(" limit 10");
-			System.err.println("Query : " + strBuff.toString());
+			//System.err.println("Query : " + strBuff.toString());
 			try {
 				_resultSet = _dbConnection.createStatement().executeQuery(strBuff.toString());
 			} catch (SQLException ex) {

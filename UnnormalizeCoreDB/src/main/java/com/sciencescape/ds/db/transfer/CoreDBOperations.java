@@ -3,6 +3,8 @@ package main.java.com.sciencescape.ds.db.transfer;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,23 +28,24 @@ public class CoreDBOperations {
 		this._my = my;
 	}
 
-	public DenormalizedFields getDenormalizedFields(long numOfRecords) throws CoreDBOpException {
+	public List<DenormalizedFields> getDenormalizedFields(long startPaperId, long endPaperId) throws CoreDBOpException {
 		int recordsProcessed = 0;
 		ResultSet paperSet = null;
 		ResultSet venueSet = null;
 		ResultSet authorSet = null;
 		ResultSet instituteSet = null;
 		ResultSet fieldSet = null;
-		
-		DenormalizedFields denormFields = new DenormalizedFields();
+		List<DenormalizedFields> dfList = new ArrayList<DenormalizedFields>();
 		// get the numOfRecords records from paper table
 		try {
-			paperSet = getPaperFields(numOfRecords);
+			//paperSet = getPaperFields(numOfRecords);
+			paperSet = getPaperFields(startPaperId, endPaperId);
 		} catch (MySQLOpException e1) {
 			throw new CoreDBOpException(e1.getMessage());
 		}
 		try {
 			while (paperSet.next()) {
+				DenormalizedFields denormFields = new DenormalizedFields();
 				// get paper id
 				String paperId = paperSet.getString(CoreDBConstants.PaperFields.ID);
 				// get venue id
@@ -69,15 +72,19 @@ public class CoreDBOperations {
 				denormFields.populateFieldsFields(fieldSet);
 				// TODO: remove later .. print the fields (for sanity)
 				//denormFields.printFields(System.out);
+				// at last add it to the list
+				dfList.add(denormFields);
+				// update number of records processed (may be used later for validation)
+				recordsProcessed++;
+				// show the progress
+				showProgress(recordsProcessed);
 			}
-			
-			recordsProcessed++;
 		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());
 		} catch (MySQLOpException e) {
 			throw new CoreDBOpException(e.getMessage());
 		}
-		return (denormFields);
+		return (dfList);
 	}
 	
 	private ResultSet getPaperFields(long numOfRecords) throws MySQLOpException {	
@@ -108,7 +115,45 @@ public class CoreDBOperations {
 		}
 		return (resultSet);
 	}
-	
+
+	private ResultSet getPaperFields(long startPaperId, long endPaperId) throws MySQLOpException {	
+		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
+		String query = null;
+		ResultSet resultSet = null;
+
+		//Create SQL statement
+		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.ALL);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.Tables.PAPER);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.WHERE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.AuthorFields.ID);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.GREATER_THAN);
+		strBuff.append(startPaperId);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.AND);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.AuthorFields.ID);
+		strBuff.append(DBMSConstants.MySQLKeyWords.LESS_THAN_EQUAL_TO);
+		strBuff.append(endPaperId);
+		
+		query = strBuff.toString();
+		logger.info("Query issued {}", query);
+		//System.err.println(query);
+		try {
+			resultSet = _my.executeQuery(query);
+		} catch (IOException e) {
+			throw new MySQLOpException(e.getMessage());
+		}
+		return (resultSet);
+	}
+
 	private ResultSet getPaperFields(String pmId) throws MySQLOpException {	
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
@@ -173,7 +218,7 @@ public class CoreDBOperations {
 
 		query = strBuff.toString();
 		logger.info("Query issued {}", query);
-		System.err.println(query);
+		//System.err.println(query);
 		try {
 			resultSet = _my.executeQuery(query);
 		} catch (IOException e) {
@@ -238,7 +283,7 @@ public class CoreDBOperations {
 		strBuff.append(pmId);
 		query = strBuff.toString();
 		logger.info("Query issued {}", query);
-		System.err.println(query);
+		//System.err.println(query);
 		try {
 			resultSet = _my.executeQuery(query);
 		} catch (IOException e) {
@@ -302,7 +347,7 @@ public class CoreDBOperations {
 
 		query = strBuff.toString();
 		logger.info("Query issued {}", query);
-		System.err.println(query);
+		//System.err.println(query);
 		try {
 			resultSet = _my.executeQuery(query);
 		} catch (IOException e) {
@@ -341,12 +386,18 @@ public class CoreDBOperations {
 
 		query = strBuff.toString();
 		logger.info("Query issued {}", query);
-		System.err.println(query);
+		//System.err.println(query);
 		try {
 			resultSet = _my.executeQuery(query);
 		} catch (IOException e) {
 			throw new MySQLOpException(e.getMessage());
 		}
 		return (resultSet);
+	}
+	
+	private void showProgress(int numOfRecords) {
+		if (numOfRecords%1000 == 0) {
+			System.err.println("Done " + numOfRecords + "records.");
+		}
 	}
 }

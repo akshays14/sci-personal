@@ -8,38 +8,6 @@ import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
 
 public class WriteTest {
 	public static void main(String[] args) {
-		
-		/* 
-		 * id
-pmid
-doi
-title
-date_pubmed_release
-issn
-year
-month
-day
-iso
-issue
-language
-type
-journal_name
-eigenfactor
-country
-volume
-nlm_id
-metadata_source
-publisher
-venue
-authors
-institutions
-abstract
-sections
-products
-fields
-citations
-date_imported
-		 */
 		//HBAse column types
 		Class types[] = {Long.class, Long.class, String.class, String.class, String.class, String.class, };
 		//HBase columns
