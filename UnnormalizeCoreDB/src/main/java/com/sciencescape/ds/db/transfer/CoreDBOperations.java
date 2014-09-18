@@ -77,7 +77,7 @@ public class CoreDBOperations {
 				// update number of records processed (may be used later for validation)
 				recordsProcessed++;
 				// show the progress
-				showProgress(recordsProcessed);
+				showProgress(paperId);
 			}
 		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());
@@ -395,9 +395,9 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 	
-	private void showProgress(int numOfRecords) {
-		if (numOfRecords%1000 == 0) {
-			System.err.println("Done " + numOfRecords + "records.");
+	private void showProgress(String paperId) {
+		if (Integer.parseInt(paperId)%1000 == 0) {
+			System.err.println("Done " + paperId + "records.");
 		}
 	}
 }

@@ -8,7 +8,6 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.omg.CORBA.INITIALIZE;
 
 import main.java.com.sciencescape.ds.db.rdbms.common.DataContainer;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataReader;
@@ -18,7 +17,6 @@ import main.java.com.sciencescape.ds.db.rdbms.coredb.AuthorFields;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.FieldsFields;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.InstitutionFields;
-import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
 import main.java.com.sciencescape.ds.db.util.NoSQLConstants;
 
 /**
@@ -54,24 +52,19 @@ public class HbaseHandler implements DataReader, DataWriter {
 
 	/**
 	 * @brief method to set configuration for non-local HBase cluster
-	 * @param config Apache Hadoop Configuration to be set
-	 * 
+	 *  
 	 * Method to set the fields required to connect to an external
 	 * HBase cluster.
 	 */
-	private void configureExternalHBase (Configuration config) {
-		config.clear();
+	private void configureExternalHBase () {
+		_config.clear();
 		//specify ZK setup
-		config.set(NoSQLConstants.HBaseConfigConstants.ZK_QUOROM, _hbaseMaster);
-		config.set(NoSQLConstants.HBaseConfigConstants.ZK_PORT, 
-				NoSQLConstants.ZooKeeperConstants.ZK_PORT_DEFAULT);
+		_config.set(NoSQLConstants.HBaseConfigConstants.ZK_QUOROM, NoSQLConstants.ZooKeeperConstants.ZK_QUOROM);
+		_config.set(NoSQLConstants.HBaseConfigConstants.ZK_PORT, NoSQLConstants.ZooKeeperConstants.ZK_PORT_DEFAULT);
 		// specify HBase setup
-		config.set(NoSQLConstants.HBaseConfigConstants.MASTER, 
-				NoSQLConstants.HBaseClusterConstants.HBASE_MASTER);
-		config.set(NoSQLConstants.HBaseConfigConstants.ROOT_DIR, 
-				NoSQLConstants.HBaseClusterConstants.HBASE_HDFS_DIR);
-		config.set(NoSQLConstants.HBaseConfigConstants.DISTRIBUTED_MODE, 
-				NoSQLConstants.HBaseClusterConstants.HBASE_DISTRIBUTED_MODE);	
+		_config.set(NoSQLConstants.HBaseConfigConstants.MASTER, _hbaseMaster);
+		_config.set(NoSQLConstants.HBaseConfigConstants.DISTRIBUTED_MODE, 
+				NoSQLConstants.HBaseClusterConstants.HBASE_DISTRIBUTED_MODE);
 	}
 
 	/**
@@ -84,7 +77,7 @@ public class HbaseHandler implements DataReader, DataWriter {
 	public void connect() throws IOException {
 		_config = HBaseConfiguration.create();
 		// un-comment this for external HBase
-		/* configureExternalHBase(_config); */
+		configureExternalHBase();
 	}
 
 	/**
@@ -127,7 +120,7 @@ public class HbaseHandler implements DataReader, DataWriter {
 			int index = col.indexOf(":");
 			byte data[] = null;
 			if (_colTypes[i] == Integer.class) {
-				data = Bytes.toBytes((int) rec.getDataAt(i));
+				data = Bytes.toBytes((Integer) rec.getDataAt(i));
 
 			} else if (_colTypes[i] == String.class) {
 				data = Bytes.toBytes((String) rec.getDataAt(i));

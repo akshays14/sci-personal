@@ -11,7 +11,8 @@ import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLOpException;
 
 public class DataTransfer  {
 	public static void main(String[] args) {
-		long range = 5000000;
+		//long range = 5000000;
+		long range = 2000;
 		long chunkLength = 1000;
 		// Create connection to CoreDB
 		MySQLHandler my = null;
