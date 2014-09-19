@@ -11,12 +11,10 @@ import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLOpException;
 
 public class DataTransfer  {
 	public static void main(String[] args) {
-		//long range = 5000000;
-		long range = 2000;
+		long range = 5000000;
 		long chunkLength = 1000;
 		// Create connection to CoreDB
 		MySQLHandler my = null;
-		//DenormalizedFields df = null;
 		try {
 			my = new MySQLHandler("54.81.251.153", 3306, "ds-team", "DsTeamSQL", "core_db");
 		} catch (JDBCException e) {
@@ -34,7 +32,7 @@ public class DataTransfer  {
 			return;
 		}
 		// Connect to HBase
-		HbaseHandler hh = new HbaseHandler("10.100.0.120", "denormalizedData", null, null);
+		HbaseHandler hh = new HbaseHandler("hadoop1:60000", "denormalizedData", null, null);
 		try {
 			hh.connect();
 		} catch (IOException e1) {

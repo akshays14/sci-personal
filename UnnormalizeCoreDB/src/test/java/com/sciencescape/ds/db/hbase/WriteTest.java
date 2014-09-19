@@ -15,7 +15,7 @@ public class WriteTest {
 		//String mySQLCols[] =  {"PERS_ID","PERS_DESC"};
 
 		//HBaseSource hb = new HBaseSource("sample",hbaseCols, types);
-		HbaseHandler hh = new HbaseHandler("10.100.0.120", "t1", hbaseCols, types);
+		HbaseHandler hh = new HbaseHandler("hadoop1:60000", "t1", hbaseCols, types);
 		//MySQLSource my = new MySQLSource("PERSON",mySQLCols);
 
 		/* data to be inserted */
@@ -24,13 +24,14 @@ public class WriteTest {
 
 		try {
 			hh.connect();
-			//my.connect();
 			DataRecord rec = new DataRecord(values1);
 			if (rec != null) {
 				hh.writeRecord(rec);
-				//rec = my.readRecord();
 			}
-
+			DataRecord rec1 = new DataRecord(values2);
+			if (rec1 != null) {
+				hh.writeRecord(rec1);
+			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			return;
