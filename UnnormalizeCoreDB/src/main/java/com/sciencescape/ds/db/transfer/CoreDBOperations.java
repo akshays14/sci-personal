@@ -17,8 +17,8 @@ import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
 import main.java.com.sciencescape.ds.db.util.DBMSConstants;
 
 public class CoreDBOperations {
-
 	private MySQLHandler _my;
+	private long _totalRecordsProcessed;
 	
 	public CoreDBOperations(MySQLHandler my) throws MySQLOpException {
 		super();
@@ -26,6 +26,7 @@ public class CoreDBOperations {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.MYSQL_HANDLER_NULL_MESSAGE);
 		}
 		this._my = my;
+		this._totalRecordsProcessed = 0L;
 	}
 
 	public List<DenormalizedFields> getDenormalizedFields(long startPaperId, long endPaperId) throws CoreDBOpException {
@@ -83,10 +84,13 @@ public class CoreDBOperations {
 			throw new CoreDBOpException(e.getMessage());
 		} catch (MySQLOpException e) {
 			throw new CoreDBOpException(e.getMessage());
+		} finally {
+			_totalRecordsProcessed += recordsProcessed;
 		}
 		return (dfList);
 	}
 	
+	@SuppressWarnings("unused")
 	private ResultSet getPaperFields(long numOfRecords) throws MySQLOpException {	
 		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
 		String query = null;
@@ -154,6 +158,7 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
+	@SuppressWarnings("unused")
 	private ResultSet getPaperFields(String pmId) throws MySQLOpException {	
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
@@ -399,5 +404,9 @@ public class CoreDBOperations {
 		if (Integer.parseInt(paperId)%1000 == 0) {
 			System.err.println("Done " + paperId + "records.");
 		}
+	}
+	
+	public long getTotalNumberOfRecordsProcessed() {
+		return _totalRecordsProcessed;
 	}
 }

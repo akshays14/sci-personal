@@ -12,7 +12,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataContainer;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataReader;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
-import main.java.com.sciencescape.ds.db.rdbms.common.DataWriter;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.AuthorFields;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.FieldsFields;
@@ -26,28 +25,29 @@ import main.java.com.sciencescape.ds.db.util.NoSQLConstants;
  *
  * Class for handling all the operations to HBase. 
  */
-public class HbaseHandler implements DataReader, DataWriter {
+public class HbaseHandler implements DataReader {
 
 	private String _tableName = null;
-	private String[] _hbaseCols = null;
-	private Class[] _colTypes = null;
 	private Configuration _config = null;
-	private HTable _table = null;
+	private String _zkQurom = null;
+	private String _zkPort;
 	private String _hbaseMaster = null;
-
+	private HTable _table = null;
+	
 	/**
 	 * @brief constructor for HbaseHandler
-	 * @param hbaseMaster host running HMaster process
-	 * @param table HBase's table name 
-	 * @param hbaseCols value of a HBase cell
-	 * @param types type of the values passed
+	 * @param zkQurom ZooKeeper quorom for hbase cluster
+	 * @param zkPort ZooKeeper port for quorom-peers
+	 * @param hbaseMaster hbase master server
+	 * @param table hbase table
+	 * 
+	 * Main constructor for HbaseHandler
 	 */
-	public HbaseHandler(String hbaseMaster, String table, String hbaseCols[], 
-			Class types[]) {
+	public HbaseHandler(String zkQurom, String zkPort, String hbaseMaster, String table) {
+		_zkQurom = zkQurom;
+		_zkPort = zkPort;
 		_hbaseMaster = hbaseMaster;
 		_tableName = table;
-		_hbaseCols = hbaseCols;
-		_colTypes = types;
 	}
 
 	/**
@@ -59,8 +59,8 @@ public class HbaseHandler implements DataReader, DataWriter {
 	private void configureExternalHBase () {
 		_config.clear();
 		//specify ZK setup
-		_config.set(NoSQLConstants.HBaseConfigConstants.ZK_QUOROM, NoSQLConstants.ZooKeeperConstants.ZK_QUOROM);
-		_config.set(NoSQLConstants.HBaseConfigConstants.ZK_PORT, NoSQLConstants.ZooKeeperConstants.ZK_PORT_DEFAULT);
+		_config.set(NoSQLConstants.HBaseConfigConstants.ZK_QUOROM, _zkQurom);
+		_config.set(NoSQLConstants.HBaseConfigConstants.ZK_PORT, _zkPort);
 		// specify HBase setup
 		_config.set(NoSQLConstants.HBaseConfigConstants.MASTER, _hbaseMaster);
 		_config.set(NoSQLConstants.HBaseConfigConstants.DISTRIBUTED_MODE, 
@@ -102,29 +102,25 @@ public class HbaseHandler implements DataReader, DataWriter {
 
 	/**
 	 * @brief write given record to HBase table
-	 * @param DataRecord data-record to be written
+	 * @param rec data-record to be written
+	 * @param hbaseCols array of string representing format of data-record
 	 * @throws IOException throws IOException on writing error 
 	 * 
+	 * @note the first item in the data-record would be treated as row-key
 	 * Function to write a record to a HBase cluster.
 	 */
-	@Override
-	public void writeRecord(DataRecord rec) throws IOException {
+	public void writeRecord(DataRecord rec, String[] hbaseCols) throws IOException {
 		if (_table == null) {
 			initalizeWriter();
 		}
-
-		//We will use the first item as the key
+		// we will use the first item as the key
 		Put p = new Put(Bytes.toBytes((String) rec.getDataAt(0)));
-		for (int i = 1; i < _hbaseCols.length; i++) {
-			String col = _hbaseCols[i];
+		for (int i = 1; i < hbaseCols.length; i++) {
+			String col = hbaseCols[i];
 			int index = col.indexOf(":");
 			byte data[] = null;
-			if (_colTypes[i] == Integer.class) {
-				data = Bytes.toBytes((Integer) rec.getDataAt(i));
-
-			} else if (_colTypes[i] == String.class) {
-				data = Bytes.toBytes((String) rec.getDataAt(i));
-			}
+			// treating every field as string
+			data = Bytes.toBytes((String) rec.getDataAt(i));
 			if (index > 0) {
 				p.add(Bytes.toBytes(col.substring(0, index)), Bytes.toBytes(col.substring(index + 1)), data);
 			} else {

@@ -4,12 +4,6 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
-import main.java.com.sciencescape.ds.db.rdbms.coredb.PaperFields;
-import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
 import main.java.com.sciencescape.ds.db.util.DBMSConstants;
 
 public class MySQLOperations {

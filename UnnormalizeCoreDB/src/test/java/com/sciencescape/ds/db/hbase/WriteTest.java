@@ -7,30 +7,24 @@ import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
 
 public class WriteTest {
 	public static void main(String[] args) {
-		//HBAse column types
-		Class types[] = {Long.class, Long.class, String.class, String.class, String.class, String.class, };
-		//HBase columns
-		String hbaseCols[] =  {"f1:app","f2:apps"};
-		//MySQL columns
-		//String mySQLCols[] =  {"PERS_ID","PERS_DESC"};
-
-		//HBaseSource hb = new HBaseSource("sample",hbaseCols, types);
-		HbaseHandler hh = new HbaseHandler("hadoop1:60000", "t1", hbaseCols, types);
-		//MySQLSource my = new MySQLSource("PERSON",mySQLCols);
-
+		HbaseHandler hh = new HbaseHandler("hadoop1,hadoop2,hadoop3", "2181", "hadoop1:60000", "t1");
+		/* format of data */
+		String[] hbaseCols = {"key", "f1:a"};
 		/* data to be inserted */
 		String values1[] = {"rowx", "valuex"};
 		String values2[] = {"rowy", "valuey"};
 
 		try {
 			hh.connect();
+			// write first record
 			DataRecord rec = new DataRecord(values1);
 			if (rec != null) {
-				hh.writeRecord(rec);
+				hh.writeRecord(rec, hbaseCols);
 			}
+			// write second record
 			DataRecord rec1 = new DataRecord(values2);
 			if (rec1 != null) {
-				hh.writeRecord(rec1);
+				hh.writeRecord(rec1, hbaseCols);
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -38,4 +32,3 @@ public class WriteTest {
 		}
 	}
 }
-

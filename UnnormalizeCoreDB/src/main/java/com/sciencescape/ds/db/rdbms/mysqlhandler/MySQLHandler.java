@@ -6,9 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 
-import main.java.com.sciencescape.ds.db.rdbms.common.DataReader;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
-import main.java.com.sciencescape.ds.db.rdbms.common.DataWriter;
 import main.java.com.sciencescape.ds.db.util.DBMSConstants;
 
 /**

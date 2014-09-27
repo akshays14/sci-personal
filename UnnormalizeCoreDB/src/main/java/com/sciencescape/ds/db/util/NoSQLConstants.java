@@ -2,11 +2,6 @@ package main.java.com.sciencescape.ds.db.util;
 
 public class NoSQLConstants {
 	
-	public static class ZooKeeperConstants {
-		public static final String ZK_QUOROM = "hadoop1,hadoop2,hadoop3";
-		public static final String ZK_PORT_DEFAULT = "2181";
-	}
-	
 	public static class HBaseConfigConstants {
 		public static final String ZK_QUOROM = "hbase.zookeeper.quorum";
 		public static final String ZK_PORT = "hbase.zookeeper.property.clientPort";
