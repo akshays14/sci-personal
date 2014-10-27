@@ -1,0 +1,8 @@
+name             'learn_chef_apache2'
+maintainer       'Learn Chef'
+maintainer_email 'learnchef@getchef.com'
+license          'Apache 2.0'
+description      'Installs and configures package apache2 and sets a basic home page.'
+long_description 'Installs and configures package apache2 and sets a basic home page. This cookbook is used by the Learn Chef tutorials. http://learn.getchef.com'
+supports         'ubuntu'
+version          '0.1.0'
