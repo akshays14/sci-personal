@@ -23,9 +23,9 @@ import main.java.com.sciencescape.ds.db.util.NoSQLConstants;
  * @brief handler for HBase
  * @author Akshay
  *
- * Class for handling all the operations to HBase. 
+ * Class for handling all the operations to HBase.
  */
-public class HbaseHandler implements DataReader {
+public class HbaseHandler {
 
 	private String _tableName = null;
 	private Configuration _config = null;
@@ -33,14 +33,14 @@ public class HbaseHandler implements DataReader {
 	private String _zkPort;
 	private String _hbaseMaster = null;
 	private HTable _table = null;
-	
+
 	/**
 	 * @brief constructor for HbaseHandler
 	 * @param zkQurom ZooKeeper quorom for hbase cluster
 	 * @param zkPort ZooKeeper port for quorom-peers
 	 * @param hbaseMaster hbase master server
 	 * @param table hbase table
-	 * 
+	 *
 	 * Main constructor for HbaseHandler
 	 */
 	public HbaseHandler(String zkQurom, String zkPort, String hbaseMaster, String table) {
@@ -52,18 +52,18 @@ public class HbaseHandler implements DataReader {
 
 	/**
 	 * @brief method to set configuration for non-local HBase cluster
-	 *  
+	 *
 	 * Method to set the fields required to connect to an external
 	 * HBase cluster.
 	 */
-	private void configureExternalHBase () {
+	private void configureExternalHBase() {
 		_config.clear();
 		//specify ZK setup
 		_config.set(NoSQLConstants.HBaseConfigConstants.ZK_QUOROM, _zkQurom);
 		_config.set(NoSQLConstants.HBaseConfigConstants.ZK_PORT, _zkPort);
 		// specify HBase setup
 		_config.set(NoSQLConstants.HBaseConfigConstants.MASTER, _hbaseMaster);
-		_config.set(NoSQLConstants.HBaseConfigConstants.DISTRIBUTED_MODE, 
+		_config.set(NoSQLConstants.HBaseConfigConstants.DISTRIBUTED_MODE,
 				NoSQLConstants.HBaseClusterConstants.HBASE_DISTRIBUTED_MODE);
 	}
 
@@ -73,18 +73,17 @@ public class HbaseHandler implements DataReader {
 	 * HBase cluster. Call configureExternalHBase to be
 	 * able to connect to a non-local HBase cluster.
 	 */
-	@Override
-	public void connect() throws IOException {
+	public void connect(boolean local) throws IOException {
 		_config = HBaseConfiguration.create();
-		// un-comment this for external HBase
-		configureExternalHBase();
+		if (!local) {
+			configureExternalHBase();
+		}
 	}
 
 	/**
 	 * Implements close method of {@link DataContainer}.
 	 * @todo implement it.
 	 */
-	@Override
 	public void close() throws IOException {
 
 	}
@@ -92,7 +91,7 @@ public class HbaseHandler implements DataReader {
 	/**
 	 * @brief initialize Writer for HbaseHandler
 	 * @throws IOException
-	 * 
+	 *
 	 * Method to initialize writer for HBase. Created a
 	 * handle for the HBase table.
 	 */
@@ -104,8 +103,8 @@ public class HbaseHandler implements DataReader {
 	 * @brief write given record to HBase table
 	 * @param rec data-record to be written
 	 * @param hbaseCols array of string representing format of data-record
-	 * @throws IOException throws IOException on writing error 
-	 * 
+	 * @throws IOException throws IOException on writing error
+	 *
 	 * @note the first item in the data-record would be treated as row-key
 	 * Function to write a record to a HBase cluster.
 	 */
@@ -208,7 +207,7 @@ public class HbaseHandler implements DataReader {
 		if (df.get_authors() != null) {
 			for (Map.Entry<Long, AuthorFields> entry : df.get_authors().entrySet()) {
 				String authorNameCol = buildAuthorNameColumnName(entry.getKey());
-				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.AUTHORS), 
+				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.AUTHORS),
 						Bytes.toBytes(authorNameCol), Bytes.toBytes(entry.getValue().get_name()));
 			}
 		}
@@ -217,9 +216,9 @@ public class HbaseHandler implements DataReader {
 			for (Map.Entry<Long, InstitutionFields> entry : df.get_institution().entrySet()) {
 				String rawAffColName = buildRawAffColumnName(entry.getKey());
 				String normAffColName = buildNormAffColumnName(entry.getKey());
-				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.INSTITUTION), 
+				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.INSTITUTION),
 						Bytes.toBytes(rawAffColName), Bytes.toBytes(entry.getValue().get_rawAffiliationName()));
-				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.INSTITUTION), 
+				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.INSTITUTION),
 						Bytes.toBytes(normAffColName), Bytes.toBytes(entry.getValue().get_normalizedAffiliationName()));
 			}
 		}
@@ -237,7 +236,7 @@ public class HbaseHandler implements DataReader {
 		if (df.get_fields() != null) {
 			for (Map.Entry<Long, FieldsFields> entry : df.get_fields().entrySet()) {
 				String fieldNameCol = buildFieldsNameColumnName(entry.getKey());
-				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.FIELDS), 
+				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.FIELDS),
 						Bytes.toBytes(fieldNameCol), Bytes.toBytes(entry.getValue().get_fieldName()));
 			}
 		}
@@ -251,9 +250,8 @@ public class HbaseHandler implements DataReader {
 
 	/**
 	 * Implements readRecord method of DataReader
-	 * @todo to be implemented 
+	 * @todo to be implemented
 	 */
-	@Override
 	public DataRecord readRecord() throws IOException {
 		return null;
 	}

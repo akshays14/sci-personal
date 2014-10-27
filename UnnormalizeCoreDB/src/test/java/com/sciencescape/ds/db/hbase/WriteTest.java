@@ -15,7 +15,7 @@ public class WriteTest {
 		String values2[] = {"rowy", "valuey"};
 
 		try {
-			hh.connect();
+			hh.connect(true);
 			// write first record
 			DataRecord rec = new DataRecord(values1);
 			if (rec != null) {
