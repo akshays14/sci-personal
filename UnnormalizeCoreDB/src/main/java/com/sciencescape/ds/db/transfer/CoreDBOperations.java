@@ -30,7 +30,8 @@ public class CoreDBOperations {
 		this._totalRecordsProcessed = 0L;
 	}
 
-	public List<DenormalizedFields> getDenormalizedFields(long startPaperId, long endPaperId) throws CoreDBOpException {
+	public List<DenormalizedFields> getDenormalizedFields(long startPaperId,
+			long endPaperId) throws CoreDBOpException {
 		int recordsProcessed = 0;
 		ResultSet paperSet = null;
 		ResultSet venueSet = null;
@@ -91,7 +92,7 @@ public class CoreDBOperations {
 		return (dfList);
 	}
 
-	private ResultSet getPaperFields(long numOfRecords) throws MySQLOpException {
+	ResultSet getPaperFields(long numOfRecords) throws MySQLOpException {
 		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
@@ -197,7 +198,7 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	private ResultSet getVenueFields(String venueId) throws MySQLOpException {
+	ResultSet getVenueFields(String venueId) throws MySQLOpException {
 		if (venueId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.VENUE_ID_NULL_MESSAGE);
 		}
@@ -237,7 +238,7 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	private ResultSet getAuthors(String pmId) throws MySQLOpException {
+	ResultSet getAuthors(String pmId) throws MySQLOpException {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
@@ -296,7 +297,7 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	private ResultSet getInstitute(String pmId) throws MySQLOpException {
+	ResultSet getInstitute(String pmId) throws MySQLOpException {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
@@ -360,7 +361,7 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	private ResultSet getFields(String pmId) throws MySQLOpException {
+	ResultSet getFields(String pmId) throws MySQLOpException {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
@@ -399,9 +400,15 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	private void showProgress(String paperId) {
+	void showProgress(String paperId) {
 		if (Integer.parseInt(paperId)%1000 == 0) {
 			System.err.println("Done " + paperId + "records.");
+		}
+	}
+
+	void showProgress(long recordsProcessed) {
+		if (recordsProcessed%1000 == 0) {
+			System.err.format("Done with %d records.\n", recordsProcessed);
 		}
 	}
 

@@ -10,7 +10,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import main.java.com.sciencescape.ds.db.rdbms.common.DataContainer;
-import main.java.com.sciencescape.ds.db.rdbms.common.DataReader;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.AuthorFields;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;

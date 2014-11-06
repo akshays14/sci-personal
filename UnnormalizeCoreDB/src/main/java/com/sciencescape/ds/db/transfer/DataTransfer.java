@@ -1,13 +1,17 @@
 package main.java.com.sciencescape.ds.db.transfer;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import main.java.com.sciencescape.ds.db.hbase.HbaseHandler;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
 import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.JDBCException;
 import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLHandler;
-import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLOpException;
 
 /**
  * @class {@link DataTransfer} DataTransfer.java
@@ -34,59 +38,70 @@ public final class DataTransfer {
 	 */
 	public static void main(final String[] args) {
 		long range = 20000;
-		long chunkLength = 500;
+		// Create executor service
+		ExecutorService executorService = Executors.newFixedThreadPool(5);
+		// Get a blocking queue
+		BlockingQueue<DenormalizedFields> queue =
+				new ArrayBlockingQueue<DenormalizedFields>(100);
 		// Create connection to CoreDB
 		MySQLHandler my = null;
 		try {
-			my = new MySQLHandler("10.100.0.194", 3306, "ds-team", "DsTeamSQL",
-					"core_db");
+			my = new MySQLHandler("10.100.0.194", 3306, "ds_agent",
+					"86753098675309", "core_db");
 		} catch (JDBCException e) {
 			System.err.println("Could not create MySQLHandler : "
 					+ e.getMessage());
 			e.printStackTrace();
 			return;
 		}
-		// Get CoreDBOperatoin object to deal with core-db
-		CoreDBOperations core = null;
-		try {
-			core = new CoreDBOperations(my);
-		} catch (MySQLOpException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-			return;
-		}
 		// Connect to HBase
-		HbaseHandler hh = new HbaseHandler("localhost:60000", "dnData",
-				null, null);
+		HbaseHandler hh = new HbaseHandler("localhost:2181", "2181",
+				"localhost:60000", "dnData");
 		try {
 			hh.connect(true);
 		} catch (IOException e1) {
-			System.err.println("Could not conenct to HBase");
+			System.err.println("Could not conenct to HBase" + e1.getMessage());
 			e1.printStackTrace();
 			return;
 		}
-		long startTime = System.currentTimeMillis();
-		// put the data in hbase in chunks (chunkLength at a time)
-		for (long i = 0; i <= range - chunkLength; i = i + chunkLength) {
-			List<DenormalizedFields> dfList = null;
-			try {
-				dfList = core.getDenormalizedFields(i, i + chunkLength);
-			} catch (CoreDBOpException e) {
-				System.err.println(e.getMessage());
-				continue;	// let the operation go on
-			}
-			// push to hbase
-			for (DenormalizedFields df : dfList) {
-				//df.printFields(System.out);
-				try {
-					hh.writeRecord(df);
-				} catch (IOException ex) {
-					ex.printStackTrace();
-					return;
-				}
-			}
+		// Create consumers and producers
+		DataRecordProducer queueProducer = null;
+		DataRecordConsumer queueConsumer = null;
+		try {
+			queueProducer = new DataRecordProducer(queue, range, my);
+			queueConsumer = new DataRecordConsumer(queue, range, hh);
+		} catch (CoreDBOpException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
 		}
-		System.out.println("Time taken : " + (System.currentTimeMillis()
+		// start the timer
+		long startTime = System.currentTimeMillis();
+		// start the producer and consumer
+		Future<?> producer = executorService.submit(queueProducer);
+		Future<?> consumer = executorService.submit(queueConsumer);
+
+		try {
+			// wait for producer to finish
+			if (producer.get() == null) {
+				System.out.println("[COMPLETED] : "
+						+ "Producer done fetching records from MySQL ");
+			}
+			// wait for consumer to finish
+			if (consumer.get() == null) {
+				System.out.println("[COMPLETED] : "
+						+ "Consumer done inserting records to HBase");
+			}
+		} catch (InterruptedException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
+		// shutdown executor service
+		executorService.shutdown();
+		System.out.println("Time taken (ms) : " + (System.currentTimeMillis()
 				- startTime));
 	}
 }
