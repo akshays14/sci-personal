@@ -12,6 +12,9 @@ import main.java.com.sciencescape.ds.db.hbase.HbaseHandler;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
 import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.JDBCException;
 import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLHandler;
+import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
+import main.java.com.sciencescape.ds.db.util.DataTransferConstants;
+import main.java.com.sciencescape.ds.db.util.NoSQLConstants;
 
 /**
  * @class {@link DataTransfer} DataTransfer.java
@@ -39,15 +42,21 @@ public final class DataTransfer {
 	public static void main(final String[] args) {
 		long range = 20000;
 		// Create executor service
-		ExecutorService executorService = Executors.newFixedThreadPool(5);
+		ExecutorService executorService = Executors.newFixedThreadPool(
+				DataTransferConstants.DataTransfer.THREAD_POOL_SIZE);
 		// Get a blocking queue
 		BlockingQueue<DenormalizedFields> queue =
-				new ArrayBlockingQueue<DenormalizedFields>(100);
+				new ArrayBlockingQueue<DenormalizedFields>(
+						DataTransferConstants.DataTransfer.BLOCKING_QUEUE_SIZE);
 		// Create connection to CoreDB
 		MySQLHandler my = null;
 		try {
-			my = new MySQLHandler("10.100.0.194", 3306, "ds_agent",
-					"86753098675309", "core_db");
+			my = new MySQLHandler(
+					CoreDBConstants.DBServer.DEV_DB_SLAVE_SERVER,
+					CoreDBConstants.DBServer.DB_PORT,
+					CoreDBConstants.DBServer.DEV_DB_USER,
+					CoreDBConstants.DBServer.DEV_DB_PASSWORD,
+					CoreDBConstants.DBServer.CORE_DB);
 		} catch (JDBCException e) {
 			System.err.println("Could not create MySQLHandler : "
 					+ e.getMessage());
@@ -55,13 +64,16 @@ public final class DataTransfer {
 			return;
 		}
 		// Connect to HBase
-		HbaseHandler hh = new HbaseHandler("localhost:2181", "2181",
-				"localhost:60000", "dnData");
+		HbaseHandler hh = new HbaseHandler(
+				NoSQLConstants.HBaseClusterConstants.ZK_QUOROM,
+				NoSQLConstants.HBaseClusterConstants.ZK_CLIENT_PORT,
+				NoSQLConstants.HBaseClusterConstants.HBASE_MASTER,
+				NoSQLConstants.HBaseClusterConstants.HBASE_TABLE_NAME);
 		try {
 			hh.connect(true);
-		} catch (IOException e1) {
-			System.err.println("Could not conenct to HBase" + e1.getMessage());
-			e1.printStackTrace();
+		} catch (IOException e) {
+			System.err.println("Could not conenct to HBase" + e.getMessage());
+			e.printStackTrace();
 			return;
 		}
 		// Create consumers and producers
@@ -101,7 +113,8 @@ public final class DataTransfer {
 		}
 		// shutdown executor service
 		executorService.shutdown();
-		System.out.println("Time taken (ms) : " + (System.currentTimeMillis()
-				- startTime));
+		// spit out total time taken
+		System.out.println("Time taken (ms) : " +
+				(System.currentTimeMillis() - startTime));
 	}
 }

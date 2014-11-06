@@ -3,12 +3,12 @@ package main.java.com.sciencescape.ds.db.util;
 /**
  * @class CoreDBConstants CoreDBConstants.java
  * @author Akshay
- * 
- * Class to store all the constants related to 
+ *
+ * Class to store all the constants related to
  * Core-DB at ScienceScape.
  */
 public class CoreDBConstants {
-	
+
 	/**
 	 * @brief enlist table names in core-db
 	 * @author Akshay
@@ -24,7 +24,7 @@ public class CoreDBConstants {
 		public static final String INSTITUTION = "institution";
 		public static final String PAPER_TO_FIELD = "paper_to_field";
 	}
-	
+
 	/**
 	 * @brief enlist fields of paper table in core-db
 	 * @author Akshay
@@ -55,7 +55,7 @@ public class CoreDBConstants {
 		public static final String ABSTRACT = "abstract";
 		public static final String FIELDS = "fields";
 	}
-	
+
 	/**
 	 * @brief enlist fields of venue table in core-db
 	 * @author Akshay
@@ -129,7 +129,7 @@ public class CoreDBConstants {
 	 * @brief enlist all the user messages for CoreDB
 	 * @author akshay
 	 *
-	 * Class enlisting all the user messages while 
+	 * Class enlisting all the user messages while
 	 * interacting with Core DB.
 	 */
 	public static class Messages {
@@ -145,5 +145,20 @@ public class CoreDBConstants {
 		public static final String MSG_INSTITUTION_NORM_AFFILIATION_FORMAT = "\t%s%n";
 		public static final String MSG_FIELD_ID_FORMAT = "Field-ID : %d%n";
 		public static final String MSG_FIELD_NAME_FORMAT = "\t%s%n";
+	}
+
+	/**
+	 * @brief enlist all deployment specific values
+	 * @author akshay
+	 *
+	 * Class enlisting all deployment specific values for
+	 * our development DB.
+	 */
+	public static class DBServer {
+		public static final String DEV_DB_SLAVE_SERVER = "dev2";
+		public static final int DB_PORT = 3306;
+		public static final String DEV_DB_USER = "ds_agent";
+		public static final String DEV_DB_PASSWORD = "86753098675309";
+		public static final String CORE_DB = "core_db";
 	}
 }
