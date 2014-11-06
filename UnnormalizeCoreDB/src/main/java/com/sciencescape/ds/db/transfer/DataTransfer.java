@@ -38,7 +38,7 @@ public final class DataTransfer {
 		// Create connection to CoreDB
 		MySQLHandler my = null;
 		try {
-			my = new MySQLHandler("54.81.251.153", 3306, "ds-team", "DsTeamSQL",
+			my = new MySQLHandler("10.100.0.194", 3306, "ds-team", "DsTeamSQL",
 					"core_db");
 		} catch (JDBCException e) {
 			System.err.println("Could not create MySQLHandler : "
