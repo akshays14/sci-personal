@@ -16,10 +16,11 @@ import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLOperations;
 import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
 import main.java.com.sciencescape.ds.db.util.DBMSConstants;
 
+@SuppressWarnings("unused")
 public class CoreDBOperations {
 	private MySQLHandler _my;
 	private long _totalRecordsProcessed;
-	
+
 	public CoreDBOperations(MySQLHandler my) throws MySQLOpException {
 		super();
 		if (my == null) {
@@ -89,9 +90,8 @@ public class CoreDBOperations {
 		}
 		return (dfList);
 	}
-	
-	@SuppressWarnings("unused")
-	private ResultSet getPaperFields(long numOfRecords) throws MySQLOpException {	
+
+	private ResultSet getPaperFields(long numOfRecords) throws MySQLOpException {
 		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
@@ -120,7 +120,7 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	private ResultSet getPaperFields(long startPaperId, long endPaperId) throws MySQLOpException {	
+	private ResultSet getPaperFields(long startPaperId, long endPaperId) throws MySQLOpException {
 		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
@@ -146,7 +146,7 @@ public class CoreDBOperations {
 		strBuff.append(CoreDBConstants.AuthorFields.ID);
 		strBuff.append(DBMSConstants.MySQLKeyWords.LESS_THAN_EQUAL_TO);
 		strBuff.append(endPaperId);
-		
+
 		query = strBuff.toString();
 		logger.info("Query issued {}", query);
 		//System.err.println(query);
@@ -158,8 +158,7 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	@SuppressWarnings("unused")
-	private ResultSet getPaperFields(String pmId) throws MySQLOpException {	
+	private ResultSet getPaperFields(String pmId) throws MySQLOpException {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
@@ -197,7 +196,7 @@ public class CoreDBOperations {
 		}
 		return (resultSet);
 	}
-	
+
 	private ResultSet getVenueFields(String venueId) throws MySQLOpException {
 		if (venueId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.VENUE_ID_NULL_MESSAGE);
@@ -205,7 +204,7 @@ public class CoreDBOperations {
 		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
-		
+
 		//Create SQL statement
 		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
@@ -235,10 +234,10 @@ public class CoreDBOperations {
 		} catch (SQLException e) {
 			throw new MySQLOpException(e.getMessage());
 		}
-		return (resultSet);		
+		return (resultSet);
 	}
-	
-	private ResultSet getAuthors(String pmId) throws MySQLOpException {	
+
+	private ResultSet getAuthors(String pmId) throws MySQLOpException {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
@@ -247,9 +246,9 @@ public class CoreDBOperations {
 		ResultSet resultSet = null;
 
 		//Create SQL statement
-		/* select paper_to_author.id_author, author.name 
-		 * from paper_to_author INNER JOIN author 
-		 * ON paper_to_author.id_author = author.id 
+		/* select paper_to_author.id_author, author.name
+		 * from paper_to_author INNER JOIN author
+		 * ON paper_to_author.id_author = author.id
 		 * where paper_to_author.id_paper=1033; */
 		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
@@ -296,8 +295,8 @@ public class CoreDBOperations {
 		}
 		return (resultSet);
 	}
-	
-	private ResultSet getInstitute(String pmId) throws MySQLOpException {	
+
+	private ResultSet getInstitute(String pmId) throws MySQLOpException {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
@@ -306,9 +305,9 @@ public class CoreDBOperations {
 		ResultSet resultSet = null;
 
 		//Create SQL statement
-		/* select paper_to_institution.proto_affiliation, paper_to_institution.id_institution, institution.name 
-		 * from paper_to_institution INNER JOIN institution 
-		 * ON paper_to_institution.id_institution = institution.id 
+		/* select paper_to_institution.proto_affiliation, paper_to_institution.id_institution, institution.name
+		 * from paper_to_institution INNER JOIN institution
+		 * ON paper_to_institution.id_institution = institution.id
 		 * where paper_to_institution.id_paper = 8560263; */
 		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
@@ -360,8 +359,8 @@ public class CoreDBOperations {
 		}
 		return (resultSet);
 	}
-	
-	private ResultSet getFields(String pmId) throws MySQLOpException {	
+
+	private ResultSet getFields(String pmId) throws MySQLOpException {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
@@ -399,13 +398,13 @@ public class CoreDBOperations {
 		}
 		return (resultSet);
 	}
-	
+
 	private void showProgress(String paperId) {
 		if (Integer.parseInt(paperId)%1000 == 0) {
 			System.err.println("Done " + paperId + "records.");
 		}
 	}
-	
+
 	public long getTotalNumberOfRecordsProcessed() {
 		return _totalRecordsProcessed;
 	}
