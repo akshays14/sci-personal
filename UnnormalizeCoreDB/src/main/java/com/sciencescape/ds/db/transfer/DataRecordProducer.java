@@ -12,36 +12,43 @@ import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
 public class DataRecordProducer implements Runnable {
 
 	private BlockingQueue<DenormalizedFields> queue;
-	private long numOfRecords;
+	private long maxId;
+	private long chunkLength;
 	private CoreDBOperations coreOps;
+	private long recordsProcessed;
 
 	public DataRecordProducer(final BlockingQueue<DenormalizedFields> queue,
-			final long numOfRecords, final MySQLHandler mysql)
+			final long numOfRecords, final long chunkLength,
+			final MySQLHandler mysql)
 					throws CoreDBOpException {
 		if (queue == null) {
 			throw new CoreDBOpException("Given queue object is null");
 		}
 		this.queue = queue;
-		this.numOfRecords = numOfRecords;
+		this.maxId = numOfRecords;
+		this.chunkLength = chunkLength;
 		try {
 			this.coreOps = new CoreDBOperations(mysql);
 		} catch (MySQLOpException e) {
 			throw new CoreDBOpException(e.getMessage());
 		}
+		this.recordsProcessed = 0;
 	}
 
 	@Override
 	public void run() {
-		try {
-			fetchAndPushDenormalizedFields();
-		} catch (CoreDBOpException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
+		for (long i = 0; i < maxId; i = i + chunkLength) {
+			try {
+				fetchAndPushDenormalizedFields(i, i + chunkLength);
+			} catch (CoreDBOpException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 
-	public void fetchAndPushDenormalizedFields() throws CoreDBOpException {
-		long recordsProcessed = 0;
+	public void fetchAndPushDenormalizedFields(long startPaperId,
+			long endPaperId) throws CoreDBOpException {
 		ResultSet paperSet = null;
 		ResultSet venueSet = null;
 		ResultSet authorSet = null;
@@ -49,7 +56,7 @@ public class DataRecordProducer implements Runnable {
 		ResultSet fieldSet = null;
 		// get the numOfRecords records from paper table
 		try {
-			paperSet = coreOps.getPaperFields(numOfRecords);
+			paperSet = coreOps.getPaperFields(startPaperId, endPaperId);
 		} catch (MySQLOpException e1) {
 			throw new CoreDBOpException(e1.getMessage());
 		}
@@ -88,12 +95,21 @@ public class DataRecordProducer implements Runnable {
 					queue.put(denormFields);
 				} catch (InterruptedException e) {
 					throw new CoreDBOpException(e.getMessage());
+				} finally {
+
 				}
+				// close the ResultSet object
+				venueSet.close();
+				authorSet.close();
+				instituteSet.close();
+				fieldSet.close();
 				// update number of records processed (may be used later for validation)
 				recordsProcessed++;
 				// show the progress
 				coreOps.showProgress(recordsProcessed);
 			}
+			// close the paperSet object
+			paperSet.close();
 		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());
 		} catch (MySQLOpException e) {

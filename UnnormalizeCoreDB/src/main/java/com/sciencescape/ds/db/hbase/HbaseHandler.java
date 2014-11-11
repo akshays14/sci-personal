@@ -9,7 +9,6 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import main.java.com.sciencescape.ds.db.rdbms.common.DataContainer;
 import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.AuthorFields;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
@@ -42,7 +41,8 @@ public class HbaseHandler {
 	 *
 	 * Main constructor for HbaseHandler
 	 */
-	public HbaseHandler(String zkQurom, String zkPort, String hbaseMaster, String table) {
+	public HbaseHandler(final String zkQurom, final String zkPort,
+			final String hbaseMaster, final String table) {
 		_zkQurom = zkQurom;
 		_zkPort = zkPort;
 		_hbaseMaster = hbaseMaster;
@@ -80,11 +80,14 @@ public class HbaseHandler {
 	}
 
 	/**
+	 * @throws IOException if not able to close hbase table connection
 	 * Implements close method of {@link DataContainer}.
-	 * @todo implement it.
 	 */
-	public void close() throws IOException {
-
+	public final void close() throws IOException {
+		// close the connection to table
+		_table.close();
+		// clear the hadoop configuration object
+		_config.clear();
 	}
 
 	/**
@@ -137,7 +140,7 @@ public class HbaseHandler {
 			throw new IOException("Given DenormalizedFields object is null");
 		}
 		// User paper ID as key
-		//Put p = new Put(Bytes.toBytes(df.get_id()));
+		//Put p = new Put(Bytes.toBytes(df.get_id()));	// store key as byte[]
 		Put p = new Put(Bytes.toBytes(String.valueOf(df.get_id())));
 		// add pmid
 		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.PMID), Bytes.toBytes(NoSQLConstants.Columns.ID), Bytes.toBytes(df.get_pmId()));

@@ -11,10 +11,10 @@ public class NoSQLConstants {
 	}
 
 	public static class HBaseClusterConstants {
-		public static final String HBASE_MASTER = "local:60000";
-		public static final String ZK_QUOROM = "localhost:2181";
+		public static final String HBASE_MASTER = "dev1:60000";
+		public static final String ZK_QUOROM = "dev1:2181,dev2:2181,dev3:2181";
 		public static final String ZK_CLIENT_PORT = "2181";
-		public static final String HBASE_TABLE_NAME = "dnData";
+		public static final String HBASE_TABLE_NAME = "denormalizedData_dev";
 		public static final String HBASE_DISTRIBUTED_MODE = "true";
 	}
 

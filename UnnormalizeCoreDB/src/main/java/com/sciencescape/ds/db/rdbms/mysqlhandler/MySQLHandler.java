@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 
-import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
 import main.java.com.sciencescape.ds.db.util.DBMSConstants;
 
 /**
@@ -24,8 +23,7 @@ public class MySQLHandler {
 	private String _dbPassword = null;	/*!< database password */
 	private String _dbName = null;		/*!< name of the target database */
 	private Connection _dbConnection;	/*!< connection object to DB */
-	private ResultSet _resultSet = null;
-	
+
 	public Connection get_dbConnection() {
 		return _dbConnection;
 	}
@@ -44,7 +42,7 @@ public class MySQLHandler {
 	 * @param table name of the table
 	 * @param cols column labels for the table
 	 * @throws JDBCException
-	 * 
+	 *
 	 * Constructor for {@link MySQLHandler} class.
 	 */
 	public MySQLHandler(String host, int port, String username, String password,
@@ -71,7 +69,7 @@ public class MySQLHandler {
 		_dbUser = username;
 		_dbPassword = password;
 		_dbName = database;
-		
+
 		// connect to database
 		try {
 			connect();
@@ -93,7 +91,7 @@ public class MySQLHandler {
 						JDBC_DRIVER_LOAD_ERROR);
 			}
 			String jdbcURL = makeJDBCurl();
-			_dbConnection = DriverManager.getConnection(jdbcURL, _dbUser, 
+			_dbConnection = DriverManager.getConnection(jdbcURL, _dbUser,
 					_dbPassword);
 			_dbConnection.setAutoCommit(true);
 		} catch (SQLException ex) {
@@ -113,42 +111,9 @@ public class MySQLHandler {
 	}
 
 	/**
-	 * readRecord implementation of {@link MySQLHandler}
-	 */
-	public DataRecord readRecord(String tableName, String[] cols) throws IOException {
-		if (_resultSet == null) {
-			//Create SQL statement, execute the query and store the resultset instance.
-			StringBuilder strBuff = new StringBuilder("SELECT ");
-			for (int i = 0; i < cols.length - 1; i++) {
-				strBuff.append(cols[i]).append(",");
-			}
-			strBuff.append(cols[cols.length - 1]).append(" FROM ").append(tableName).append(" limit 10");
-			//System.err.println("Query : " + strBuff.toString());
-			try {
-				_resultSet = _dbConnection.createStatement().executeQuery(strBuff.toString());
-			} catch (SQLException ex) {
-				throw new IOException(ex);
-			}
-		}
-		/* fetch the record */
-		try {
-			if (!_resultSet.next()) {
-				return null;
-			}
-			Object data[] = new Object[cols.length];
-			for(int i=0;i<cols.length;i++) {
-				data[i] = _resultSet.getObject(cols[i]);
-			}
-			return new DataRecord(data);
-		} catch (SQLException exp) {
-			throw new IOException(exp);
-		}
-	}
-
-	/**
 	 * @brief makes JDBC url
 	 * @return JDBC url string
-	 * 
+	 *
 	 * Method to make JDBC url, which is used to connect
 	 * to MySQL server. It should be of the following form:
 	 * jdbc:mysql://[host][:port]/[database][?property1][=value1]...
@@ -167,7 +132,7 @@ public class MySQLHandler {
 		/* convert to string and return */
 		return (url.toString());
 	}
-	
+
 	public ResultSet executeQuery(String query) throws IOException {
 		if (query == null) {
 			throw new IOException(DBMSConstants.MySQLHandlerOperations.QUERY_NULL_MESSAGE);

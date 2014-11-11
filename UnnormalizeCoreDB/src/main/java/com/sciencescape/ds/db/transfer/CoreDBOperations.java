@@ -121,7 +121,7 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	private ResultSet getPaperFields(long startPaperId, long endPaperId) throws MySQLOpException {
+	ResultSet getPaperFields(long startPaperId, long endPaperId) throws MySQLOpException {
 		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
@@ -408,7 +408,7 @@ public class CoreDBOperations {
 
 	void showProgress(long recordsProcessed) {
 		if (recordsProcessed%1000 == 0) {
-			System.err.format("Done with %d records.\n", recordsProcessed);
+			System.err.format("Done with %d records.%n", recordsProcessed);
 		}
 	}
 

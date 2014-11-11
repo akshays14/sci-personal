@@ -40,7 +40,11 @@ public final class DataTransfer {
 	 * from MySQWL.
 	 */
 	public static void main(final String[] args) {
-		long range = 20000;
+		long range = 25255485;		// max PMID in dev DB
+		long chunkLength = 500000;	// sql records to fetch at a time
+		/*
+		 * create necessary objects
+		 */
 		// Create executor service
 		ExecutorService executorService = Executors.newFixedThreadPool(
 				DataTransferConstants.DataTransfer.THREAD_POOL_SIZE);
@@ -70,29 +74,33 @@ public final class DataTransfer {
 				NoSQLConstants.HBaseClusterConstants.HBASE_MASTER,
 				NoSQLConstants.HBaseClusterConstants.HBASE_TABLE_NAME);
 		try {
-			hh.connect(true);
+			hh.connect(false);
 		} catch (IOException e) {
 			System.err.println("Could not conenct to HBase" + e.getMessage());
 			e.printStackTrace();
 			return;
 		}
-		// Create consumers and producers
+		// Create consumers and producers objects
 		DataRecordProducer queueProducer = null;
 		DataRecordConsumer queueConsumer = null;
 		try {
-			queueProducer = new DataRecordProducer(queue, range, my);
+			queueProducer = new DataRecordProducer(queue, range, chunkLength,
+					my);
 			queueConsumer = new DataRecordConsumer(queue, range, hh);
 		} catch (CoreDBOpException e) {
 			System.err.println(e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
+
 		// start the timer
 		long startTime = System.currentTimeMillis();
-		// start the producer and consumer
+
+		/*
+		 * start the producer and consumer thread
+		 */
 		Future<?> producer = executorService.submit(queueProducer);
 		Future<?> consumer = executorService.submit(queueConsumer);
-
 		try {
 			// wait for producer to finish
 			if (producer.get() == null) {
@@ -111,8 +119,27 @@ public final class DataTransfer {
 			System.err.println(e.getMessage());
 			e.printStackTrace();
 		}
+
+		/*
+		 * clean-ups
+		 */
 		// shutdown executor service
 		executorService.shutdown();
+		// close the connection to MySQL DB
+		try {
+			my.close();
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
+		// close the connection to HBase
+		try {
+			hh.close();
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
+
 		// spit out total time taken
 		System.out.println("Time taken (ms) : " +
 				(System.currentTimeMillis() - startTime));
