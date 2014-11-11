@@ -12,11 +12,9 @@ import org.slf4j.LoggerFactory;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
 import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLHandler;
 import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLOpException;
-import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLOperations;
 import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
 import main.java.com.sciencescape.ds.db.util.DBMSConstants;
 
-@SuppressWarnings("unused")
 public class CoreDBOperations {
 	private MySQLHandler _my;
 	private long _totalRecordsProcessed;
@@ -93,7 +91,7 @@ public class CoreDBOperations {
 	}
 
 	ResultSet getPaperFields(long numOfRecords) throws MySQLOpException {
-		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
+		Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
 
@@ -122,7 +120,7 @@ public class CoreDBOperations {
 	}
 
 	ResultSet getPaperFields(long startPaperId, long endPaperId) throws MySQLOpException {
-		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
+		Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
 
@@ -159,11 +157,11 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	private ResultSet getPaperFields(String pmId) throws MySQLOpException {
+	ResultSet getPaperFields(String pmId) throws MySQLOpException {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
-		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
+		Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
 
@@ -202,7 +200,7 @@ public class CoreDBOperations {
 		if (venueId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.VENUE_ID_NULL_MESSAGE);
 		}
-		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
+		Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
 
@@ -242,7 +240,7 @@ public class CoreDBOperations {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
-		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
+		Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
 
@@ -301,7 +299,7 @@ public class CoreDBOperations {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
-		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
+		Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
 
@@ -365,7 +363,7 @@ public class CoreDBOperations {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
-		Logger logger = LoggerFactory.getLogger(MySQLOperations.class);
+		Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
 		String query = null;
 		ResultSet resultSet = null;
 

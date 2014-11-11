@@ -16,6 +16,12 @@ public class DataRecordProducer implements Runnable {
 	private long chunkLength;
 	private CoreDBOperations coreOps;
 	private long recordsProcessed;
+	// ResultSet object
+	private ResultSet paperSet;
+	private ResultSet venueSet;
+	private ResultSet authorSet;
+	private ResultSet instituteSet;
+	private ResultSet fieldSet;
 
 	public DataRecordProducer(final BlockingQueue<DenormalizedFields> queue,
 			final long numOfRecords, final long chunkLength,
@@ -33,6 +39,12 @@ public class DataRecordProducer implements Runnable {
 			throw new CoreDBOpException(e.getMessage());
 		}
 		this.recordsProcessed = 0;
+		// initialize resultSet object
+		paperSet = null;
+		venueSet = null;
+		authorSet = null;
+		instituteSet = null;
+		fieldSet = null;
 	}
 
 	@Override
@@ -49,11 +61,6 @@ public class DataRecordProducer implements Runnable {
 
 	public void fetchAndPushDenormalizedFields(long startPaperId,
 			long endPaperId) throws CoreDBOpException {
-		ResultSet paperSet = null;
-		ResultSet venueSet = null;
-		ResultSet authorSet = null;
-		ResultSet instituteSet = null;
-		ResultSet fieldSet = null;
 		// get the numOfRecords records from paper table
 		try {
 			paperSet = coreOps.getPaperFields(startPaperId, endPaperId);
@@ -98,21 +105,27 @@ public class DataRecordProducer implements Runnable {
 				} finally {
 
 				}
-				// close the ResultSet object
-				venueSet.close();
-				authorSet.close();
-				instituteSet.close();
-				fieldSet.close();
 				// update number of records processed (may be used later for validation)
 				recordsProcessed++;
 				// show the progress
 				coreOps.showProgress(recordsProcessed);
 			}
-			// close the paperSet object
-			paperSet.close();
 		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());
 		} catch (MySQLOpException e) {
+			throw new CoreDBOpException(e.getMessage());
+		}
+	}
+
+	public void clean() throws CoreDBOpException {
+		// close the ResultSet object
+		try {
+			venueSet.close();
+			authorSet.close();
+			instituteSet.close();
+			fieldSet.close();
+			paperSet.close();
+		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());
 		}
 	}

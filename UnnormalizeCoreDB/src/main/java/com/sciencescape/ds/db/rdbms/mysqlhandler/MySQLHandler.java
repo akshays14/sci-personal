@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.DriverManager;
+import java.sql.Statement;
 
 import main.java.com.sciencescape.ds.db.util.DBMSConstants;
 
@@ -137,9 +138,13 @@ public class MySQLHandler {
 		if (query == null) {
 			throw new IOException(DBMSConstants.MySQLHandlerOperations.QUERY_NULL_MESSAGE);
 		}
+		Statement statement = null;
 		ResultSet resultSet = null;
 		try {
-			resultSet = _dbConnection.createStatement().executeQuery(query);
+			// prepare the statement
+			statement = _dbConnection.createStatement();
+			// run the query
+			resultSet = statement.executeQuery(query);
 		} catch (SQLException ex) {
 			throw new IOException(ex);
 		}

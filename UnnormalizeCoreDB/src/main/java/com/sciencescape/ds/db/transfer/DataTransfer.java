@@ -41,7 +41,7 @@ public final class DataTransfer {
 	 */
 	public static void main(final String[] args) {
 		long range = 25255485;		// max PMID in dev DB
-		long chunkLength = 500000;	// sql records to fetch at a time
+		long chunkLength = 100000;	// sql records to fetch at a time
 		/*
 		 * create necessary objects
 		 */
@@ -125,6 +125,13 @@ public final class DataTransfer {
 		 */
 		// shutdown executor service
 		executorService.shutdown();
+		// clean up producer object
+		try {
+			queueProducer.clean();
+		} catch (CoreDBOpException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 		// close the connection to MySQL DB
 		try {
 			my.close();
