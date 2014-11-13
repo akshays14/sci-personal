@@ -49,6 +49,17 @@ public class DataRecordProducer implements Runnable {
 
 	@Override
 	public void run() {
+		for (int i = 2011; i <  2015; i++) {
+			try {
+				fetchAndPushDenormalizedFields(i, i + 1);
+			} catch (CoreDBOpException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	}
+
+/*	public void run() {
 		for (long i = 0; i < maxId; i = i + chunkLength) {
 			try {
 				fetchAndPushDenormalizedFields(i, i + chunkLength);
@@ -58,12 +69,15 @@ public class DataRecordProducer implements Runnable {
 			}
 		}
 	}
-
-	public void fetchAndPushDenormalizedFields(long startPaperId,
+*/
+/*	public void fetchAndPushDenormalizedFields(long startPaperId,
 			long endPaperId) throws CoreDBOpException {
+*/
+	public void fetchAndPushDenormalizedFields(int startYear, int endYear)
+			throws CoreDBOpException {
 		// get the numOfRecords records from paper table
 		try {
-			paperSet = coreOps.getPaperFields(startPaperId, endPaperId);
+			paperSet = coreOps.getPaperFieldsByYear(startYear, endYear);
 		} catch (MySQLOpException e1) {
 			throw new CoreDBOpException(e1.getMessage());
 		}

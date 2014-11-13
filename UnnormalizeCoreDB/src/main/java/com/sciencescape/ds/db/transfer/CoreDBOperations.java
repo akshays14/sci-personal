@@ -157,6 +157,46 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
+	ResultSet getPaperFieldsByYear(int startYear, int endYear) throws MySQLOpException {
+		Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
+		String query = null;
+		ResultSet resultSet = null;
+
+		//Create SQL statement
+		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.ALL);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.Tables.PAPER);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.WHERE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.PaperFields.YEAR);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.GREATER_THAN);
+		strBuff.append(startYear);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.AND);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.PaperFields.YEAR);
+		strBuff.append(DBMSConstants.MySQLKeyWords.LESS_THAN_EQUAL_TO);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(endYear);
+
+		query = strBuff.toString();
+		System.out.format("Query issued %s%n", query);
+		logger.info("Query issued {}", query);
+		//System.err.println(query);
+		try {
+			resultSet = _my.executeQuery(query);
+		} catch (IOException e) {
+			throw new MySQLOpException(e.getMessage());
+		}
+		return (resultSet);
+	}
+
 	ResultSet getPaperFields(String pmId) throws MySQLOpException {
 		if (pmId == null) {
 			throw new MySQLOpException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
