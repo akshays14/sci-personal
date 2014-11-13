@@ -27,8 +27,14 @@ public final class UnexpectedArgumentsException extends Exception {
 		super(msg);
 	}
 
+	/**
+	 * Constructor for FormatNotSupported with formatted message.
+	 *
+	 * @param msg string pattern
+	 * @param args variable arguments
+	 */
 	public UnexpectedArgumentsException(final String msg,
 			final String... args) {
-		super(String.format(msg, (Object[])args));
+		super(String.format(msg, (Object[]) args));
 	}
 }

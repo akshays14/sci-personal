@@ -1,7 +1,6 @@
 package com.sciencescape.ds.HBaseAggregate;
 
 /**
- * @class Constants Constants.java
  * @author akshay
  *
  * Class to store all the constants related to HBaseAggregate package.
@@ -84,28 +83,50 @@ public class Constants {
 	 * and associated processing.
 	 */
 	public static class CLA {
-		public static final String PROGRAM_NAME = "GetActiveYears";
-		public static final String PROGRAM_DESCRIPTION = "Find active years for each author";
+		/**!< program name to be displayed on CLI */
+		public static final String PROGRAM_NAME = "NumOfPapersLastNYears";
+		/**!< program description to be displayed on CLI */
+		public static final String PROGRAM_DESCRIPTION =
+				"Find number of papers in last N years for each author";
+		/**!< input hbase table option short */
 		public static final String INPUT_TABLE_OPT_SHORT = "-it";
+		/**!< input hbase table option long */
 		public static final String INPUT_TABLE_OPT_LONG = "--inputTable";
-		public static final String INPUT_TABLE_OPT_DESCRIPTION = "HBase table to read data from";
+		/**!< input hbase table option description */
+		public static final String INPUT_TABLE_OPT_DESCRIPTION =
+				"HBase table to read data from";
+		/**!< output type option short */
 		public static final String OUTPUT_OPT_SHORT = "-o";
+		/**!< output type option long */
 		public static final String OUTPUT_OPT_LONG = "--output";
-		public static final String OUTPUT_OPT_DESCRIPTION = "Specify output target for reducer";
+		/**!< output type option description */
+		public static final String OUTPUT_OPT_DESCRIPTION =
+				"Specify output target for reducer";
+		/**!< output target type option for hbase */
 		public static final String OUTPUT_OPT_HBASE_CHOICE = "hbase";
+		/**!< output target type option for filesystem */
 		public static final String OUTPUT_OPT_FS_CHOICE = "filesystem";
-
+		/**!< output hbase table option short */
 		public static final String OUTPUT_TABLE_OPT_SHORT = "-ot";
+		/**!< output hbase table option long */
 		public static final String OUTPUT_TABLE_OPT_LONG = "--outputTable";
-		public static final String OUTPUT_TABLE_OPT_DESCRIPTION = "HBase table to write summary data to";
-
+		/**!< output hbase table option description */
+		public static final String OUTPUT_TABLE_OPT_DESCRIPTION =
+				"HBase table to write summary data to";
+		/**!< output filesystem file option short */
 		public static final String OUTPUT_FILE_OPT_SHORT = "-of";
+		/**!< output filesystem file option long */
 		public static final String OUTPUT_FILE_OPT_LONG = "--outputFile";
-		public static final String OUTPUT_FILE_OPT_DESCRIPTION = "FileSystem file to write summary data to";
-
+		/**!< output filesystem file option description */
+		public static final String OUTPUT_FILE_OPT_DESCRIPTION =
+				"FileSystem file to write summary data to";
+		/**!< input hbase table argument */
 		public static final String INPUT_TABLE_ARG = "inputTable";
+		/**!< output type argument */
 		public static final String OUTPUT_FORMAT_ARG = "output";
+		/**!< output hbase table argument */
 		public static final String OUTPUT_TABLE_ARG = "outputTable";
+		/**!< output filesystem file argument */
 		public static final String OUTPUT_FILE_ARG = "outputFile";
 	}
 }

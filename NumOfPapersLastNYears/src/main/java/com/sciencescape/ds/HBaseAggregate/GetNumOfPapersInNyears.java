@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.ResourceBundle;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -64,7 +65,8 @@ public final class GetNumOfPapersInNyears {
 	private static String outputFilesystemFile;
 
 	/**!< Logger object */
-	private static Logger logger = LoggerFactory.getLogger(GetNumOfPapersInNyears.class);
+	private static Logger logger =
+			LoggerFactory.getLogger(GetNumOfPapersInNyears.class);
 	/**!< ResourceBundle object to handle user messages */
 	private static ResourceBundle messages = null;
 
@@ -295,6 +297,7 @@ public final class GetNumOfPapersInNyears {
 			ns = parser.parseArgs(args);
 		} catch (ArgumentParserException e) {
 			parser.handleError(e);
+			logger.error(e.getMessage());
 			System.exit(1);
 		}
 
@@ -351,7 +354,9 @@ public final class GetNumOfPapersInNyears {
 		try {
 			retrieveArguments(args);
 		} catch (UnexpectedArgumentsException e) {
-			System.out.println(e.getMessage());
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+			logger.error(ExceptionUtils.getStackTrace(e));
 			System.exit(1);
 		}
 		// create configuration for job and job
@@ -361,6 +366,9 @@ public final class GetNumOfPapersInNyears {
 			job = Job.getInstance(conf, Constants.CLA.PROGRAM_NAME);
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
+			e.printStackTrace();
+			logger.error(ExceptionUtils.getStackTrace(e));
+			System.exit(1);
 		}
 		// create scan object
 		Scan scan = new Scan();
@@ -391,14 +399,23 @@ public final class GetNumOfPapersInNyears {
 			// should never come here as case is handled while reading arguments
 			System.err.format(messages.getString("output_frmt_invalid"),
 					outputType);
+			logger.error(messages.getString("output_frmt_invalid"),
+					outputType);
 			System.exit(1);
 		}
 		// run the job
 		try {
-			System.exit(job.waitForCompletion(true) ? 0 : 1);
+			if (job.waitForCompletion(true)) {
+				System.exit(0);
+			} else {
+				System.err.println(messages.getString("hadoop_job_error"));
+				logger.error(messages.getString("hadoop_job_error"));
+				System.exit(1);
+			}
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			e.printStackTrace();
+			logger.error(ExceptionUtils.getStackTrace(e));
 		}
 	}
 }
