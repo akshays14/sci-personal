@@ -40,7 +40,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
  *
  * @author Akshay
  */
-public final class GetActiveYears {
+public final class GetNumOfPapersInNyears {
 
 	/**
 	 * Enum for type of output target.
@@ -64,14 +64,14 @@ public final class GetActiveYears {
 	private static String outputFilesystemFile;
 
 	/**!< Logger object */
-	private static Logger logger = LoggerFactory.getLogger(GetActiveYears.class);
+	private static Logger logger = LoggerFactory.getLogger(GetNumOfPapersInNyears.class);
 	/**!< ResourceBundle object to handle user messages */
 	private static ResourceBundle messages = null;
 
 	/**
 	 * Private constructor to disable instantiation.
 	 */
-	private GetActiveYears() { }
+	private GetNumOfPapersInNyears() { }
 
 	/**
 	 * Method to set user messages configurations.
@@ -370,7 +370,7 @@ public final class GetActiveYears {
 		scan.addColumn(Bytes.toBytes(Constants.HBaseDB.DATE_COLUMN_FAMILY),
 				Bytes.toBytes(Constants.HBaseDB.YEAR_COLUMN));
 		// set the class of the job
-		job.setJarByClass(GetActiveYears.class);
+		job.setJarByClass(GetNumOfPapersInNyears.class);
 		// choose the right output target
 		switch (outputType) {
 		case HBASE:
