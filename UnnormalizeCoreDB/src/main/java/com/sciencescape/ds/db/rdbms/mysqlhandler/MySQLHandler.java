@@ -130,6 +130,8 @@ public class MySQLHandler {
 		url.append(DBMSConstants.MySQLHandlerConstants.JDBC_URL_DELIMITER);
 		/* add database name */
 		url.append(_dbName);
+		/* add zero date handling */
+		url.append(DBMSConstants.MySQLHandlerConstants.ZERO_DATE_BEHAVIOR);
 		/* convert to string and return */
 		return (url.toString());
 	}

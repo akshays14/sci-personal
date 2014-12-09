@@ -19,9 +19,11 @@ i) Check if deployment variables are set correctly in following places:
 /UnnormalizeCoreDB/src/main/java/com/sciencescape/ds/db/util/CoreDBConstants.java$DBServers
 
 ii) to run on your own dev machine (using Apache hbase library)
-java -Xmx16g -cp ./target/UnnormalizeCoreDB-1.0-SNAPSHOT.jar:<PATH-TO-HBASE>/lib/*:<MAVEN_HOME>/repository/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar main.java.com.sciencescape.ds.db.transfer.DataTransfer
+java -Xmx16g -cp ./target/UnnormalizeCoreDB-1.0-SNAPSHOT.jar:<PATH-TO-HBASE>/lib/*:<MAVEN_HOME>/repository/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar main.java.com.sciencescape.ds.db.transfer.DataTransfer <YEAR-OF-PUBLICATION>
 For example:
 java -Xmx16g -cp ./target/UnnormalizeCoreDB-1.0-SNAPSHOT.jar:/home/akshay/software/hbase-0.98.5-hadoop2/lib/*:/home/akshay/.m2/repository/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar main.java.com.sciencescape.ds.db.transfer.DataTransfer
 
 b) On dev machines in machine room (Using CDH libraries):
-java -Xmx16g -cp ./target/UnnormalizeCoreDB-1.0-SNAPSHOT.jar:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hbase/*:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hbase/lib/*:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hadoop/*:/home/akshay/.m2/repository/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar main.java.com.sciencescape.ds.db.transfer.DataTransfer
+for i in {<START-YEAR>..<END-YEAR>}; do java -Xmx48g -cp ./target/UnnormalizeCoreDB-1.0-SNAPSHOT.jar:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hbase/*:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hbase/lib/*:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hadoop/*:/home/akshay/.m2/repository/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar main.java.com.sciencescape.ds.db.transfer.DataTransfer $i; done
+For example:
+for i in {2013..2013}; do java -Xmx48g -cp ./target/UnnormalizeCoreDB-1.0-SNAPSHOT.jar:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hbase/*:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hbase/lib/*:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hadoop/*:/home/akshay/.m2/repository/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar main.java.com.sciencescape.ds.db.transfer.DataTransfer $i; done

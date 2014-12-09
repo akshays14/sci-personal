@@ -37,11 +37,15 @@ public final class DataTransfer {
 	 * @param args command line arguments
 	 *
 	 * Main function to denormalize and transfer data to Hbase
-	 * from MySQWL.
+	 * from MySQL.
 	 */
 	public static void main(final String[] args) {
-		long range = 25255485;		// max PMID in dev DB
-		long chunkLength = 100000;	// sql records to fetch at a time
+		/* get publication year */
+		if (args.length != 1) {
+			System.err.println("Please provide publication year of papers to be imported");
+			System.exit(1);
+		}
+		int publicationYear = Integer.parseInt(args[0]);
 		/*
 		 * create necessary objects
 		 */
@@ -84,9 +88,8 @@ public final class DataTransfer {
 		DataRecordProducer queueProducer = null;
 		DataRecordConsumer queueConsumer = null;
 		try {
-			queueProducer = new DataRecordProducer(queue, range, chunkLength,
-					my);
-			queueConsumer = new DataRecordConsumer(queue, range, hh);
+			queueProducer = new DataRecordProducer(queue, my, publicationYear);
+			queueConsumer = new DataRecordConsumer(queue, hh);
 		} catch (CoreDBOpException e) {
 			System.err.println(e.getMessage());
 			e.printStackTrace();

@@ -52,7 +52,7 @@ public class DenormalizedFields {
 	private Map<Long, FieldsFields> _fields;
 	// Field from paper table
 	private String _dateImported;
-	
+
 	public long get_id() {
 		return _id;
 	}
@@ -257,7 +257,7 @@ public class DenormalizedFields {
 			stream.printf(CoreDBConstants.Messages.MSG_AUTHOR_NAME_FORMAT, (entry.getValue()).get_name());
 		}
 	}
-	
+
 	public void printInstitution(PrintStream stream) {
 		if (stream == null || _institution == null) {
 			return;
@@ -278,7 +278,7 @@ public class DenormalizedFields {
 			stream.printf(CoreDBConstants.Messages.MSG_FIELD_NAME_FORMAT, (entry.getValue()).get_fieldName());
 		}
 	}
-	
+
 	public void populatePaperFields(ResultSet rs) throws CoreDBOpException  {
 		if (rs == null) {
 			throw new CoreDBOpException(CoreDBConstants.Messages.RESULTSET_NULL_MSG);
@@ -305,25 +305,26 @@ public class DenormalizedFields {
 			_metadataSource = rs.getString(CoreDBConstants.PaperFields.METADATA_SOURCE);
 			_venueId = rs.getLong(CoreDBConstants.PaperFields.VENUE_ID);
 			_abstract = rs.getString(CoreDBConstants.PaperFields.ABSTRACT);
-			
+
 		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());
 		}
 	}
-	
+
 	public void populateVenueFields(ResultSet rs) throws CoreDBOpException  {
 		if (rs == null) {
 			throw new CoreDBOpException(CoreDBConstants.Messages.RESULTSET_NULL_MSG);
 		}
 		try {
 			// move resultSet to first row
-			rs.next();
-			_publisher = rs.getString(CoreDBConstants.VenueFields.PUBLISHER);
+			while(rs.next()) {
+				_publisher = rs.getString(CoreDBConstants.VenueFields.PUBLISHER);
+			}
 		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());
 		}
 	}
-	
+
 	public void populateAuthorFields(ResultSet rs) throws CoreDBOpException  {
 		if (rs == null) {
 			throw new CoreDBOpException(CoreDBConstants.Messages.RESULTSET_NULL_MSG);

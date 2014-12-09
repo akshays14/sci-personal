@@ -22,8 +22,9 @@ public class DBMSConstants {
 		public static final String JDBC_URL_USER_STRING= "user";
 		public static final String JDBC_URL_PASSWORD_STRING= "password";
 		public static final String JDBC_URL_ASSIGNMENT_CHARACTER = "=";
+		public static final String ZERO_DATE_BEHAVIOR = "?zeroDateTimeBehavior=convertToNull";
 	}
-	
+
 	public static class MySQLHandlerOperations {
 		public static final String MYSQL_HANDLER_NULL_MESSAGE = "Given MySQLHandler object is null";
 		public static final String MYSQL_CONNECTION_NULL_MESSAGE = "Given MySQL Connection object is null";
@@ -31,7 +32,7 @@ public class DBMSConstants {
 		public static final String PMID_NULL_MESSAGE = "Given pm id is null";
 		public static final String VENUE_ID_NULL_MESSAGE = "Given venue id is null";
 	}
-	
+
 	public static class MySQLKeyWords {
 		public static final String SELECT = "SELECT";
 		public static final String FROM = "FROM";
@@ -47,5 +48,5 @@ public class DBMSConstants {
 		public static final String GREATER_THAN = ">";
 		public static final String LESS_THAN_EQUAL_TO = "<=";
 		public static final String AND = "AND";
-	}	
+	}
 }

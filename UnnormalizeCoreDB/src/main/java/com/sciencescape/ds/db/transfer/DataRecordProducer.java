@@ -8,14 +8,14 @@ import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
 import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLHandler;
 import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLOpException;
 import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
+import main.java.com.sciencescape.ds.db.util.DataTransferConstants;
 
 public class DataRecordProducer implements Runnable {
 
 	private BlockingQueue<DenormalizedFields> queue;
-	private long maxId;
-	private long chunkLength;
 	private CoreDBOperations coreOps;
 	private long recordsProcessed;
+	private int publicationYear;
 	// ResultSet object
 	private ResultSet paperSet;
 	private ResultSet venueSet;
@@ -24,15 +24,13 @@ public class DataRecordProducer implements Runnable {
 	private ResultSet fieldSet;
 
 	public DataRecordProducer(final BlockingQueue<DenormalizedFields> queue,
-			final long numOfRecords, final long chunkLength,
-			final MySQLHandler mysql)
+			final MySQLHandler mysql, final int publicationYear)
 					throws CoreDBOpException {
 		if (queue == null) {
 			throw new CoreDBOpException("Given queue object is null");
 		}
 		this.queue = queue;
-		this.maxId = numOfRecords;
-		this.chunkLength = chunkLength;
+		this.publicationYear = publicationYear;
 		try {
 			this.coreOps = new CoreDBOperations(mysql);
 		} catch (MySQLOpException e) {
@@ -49,35 +47,22 @@ public class DataRecordProducer implements Runnable {
 
 	@Override
 	public void run() {
-		for (int i = 2011; i <  2015; i++) {
-			try {
-				fetchAndPushDenormalizedFields(i, i + 1);
-			} catch (CoreDBOpException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
-			}
+		try {
+			// push all the papers for this publication year
+			fetchAndPushDenormalizedFields(this.publicationYear);
+			// push a empty paper
+			pushEmptyDenormalizedFields();
+		} catch (CoreDBOpException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
-/*	public void run() {
-		for (long i = 0; i < maxId; i = i + chunkLength) {
-			try {
-				fetchAndPushDenormalizedFields(i, i + chunkLength);
-			} catch (CoreDBOpException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
-			}
-		}
-	}
-*/
-/*	public void fetchAndPushDenormalizedFields(long startPaperId,
-			long endPaperId) throws CoreDBOpException {
-*/
-	public void fetchAndPushDenormalizedFields(int startYear, int endYear)
+	public void fetchAndPushDenormalizedFields(int publicationYear)
 			throws CoreDBOpException {
 		// get the numOfRecords records from paper table
 		try {
-			paperSet = coreOps.getPaperFieldsByYear(startYear, endYear);
+			paperSet = coreOps.getPaperFieldsByYear(publicationYear);
 		} catch (MySQLOpException e1) {
 			throw new CoreDBOpException(e1.getMessage());
 		}
@@ -116,8 +101,6 @@ public class DataRecordProducer implements Runnable {
 					queue.put(denormFields);
 				} catch (InterruptedException e) {
 					throw new CoreDBOpException(e.getMessage());
-				} finally {
-
 				}
 				// update number of records processed (may be used later for validation)
 				recordsProcessed++;
@@ -127,6 +110,17 @@ public class DataRecordProducer implements Runnable {
 		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());
 		} catch (MySQLOpException e) {
+			throw new CoreDBOpException(e.getMessage());
+		}
+	}
+
+	public void pushEmptyDenormalizedFields() throws CoreDBOpException {
+		DenormalizedFields denormFields = new DenormalizedFields();
+		// set the pmid to for empty record
+		denormFields.set_pmId(DataTransferConstants.DataTransfer.EMPTY_RECORD_PMID);
+		try {
+			queue.put(denormFields);
+		} catch (InterruptedException e) {
 			throw new CoreDBOpException(e.getMessage());
 		}
 	}
