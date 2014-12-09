@@ -58,10 +58,10 @@ public class NoSQLConstants {
 	}
 
 	public static class ColumnKeyWords {
-		public static final String AUTHOR_NAME = "_name";
-		public static final String RAW_AFFILIATION = "_rawAff";
-		public static final String NORM_AFFILIATION = "_normAff";
-		public static final String FIELD_NAME = "_name";
+		public static final String AUTHOR_NAME = "name_";
+		public static final String RAW_AFFILIATION = "rawAff_";
+		public static final String NORM_AFFILIATION = "normAff_";
+		public static final String FIELD_NAME = "name_";
 		public static final String IMPORT_DATE = "date";
 	}
 }

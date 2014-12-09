@@ -250,38 +250,30 @@ public class HbaseHandler {
 		_table.put(p);
 	}
 
-	/**
-	 * Implements readRecord method of DataReader
-	 * @todo to be implemented
-	 */
-	public DataRecord readRecord() throws IOException {
-		return null;
-	}
-
 	public String buildAuthorNameColumnName(long id) {
 		StringBuilder colName = new StringBuilder();
-		colName.append(id);
 		colName.append(NoSQLConstants.ColumnKeyWords.AUTHOR_NAME);
+		colName.append(id);
 		return (colName.toString());
 	}
 
 	public String buildRawAffColumnName(long id) {
 		StringBuilder colName = new StringBuilder();
-		colName.append(id);
 		colName.append(NoSQLConstants.ColumnKeyWords.RAW_AFFILIATION);
+		colName.append(id);
 		return (colName.toString());
 	}
 	public String buildNormAffColumnName(long id) {
 		StringBuilder colName = new StringBuilder();
-		colName.append(id);
 		colName.append(NoSQLConstants.ColumnKeyWords.NORM_AFFILIATION);
+		colName.append(id);
 		return (colName.toString());
 	}
 
 	public String buildFieldsNameColumnName(long id) {
 		StringBuilder colName = new StringBuilder();
-		colName.append(id);
 		colName.append(NoSQLConstants.ColumnKeyWords.FIELD_NAME);
+		colName.append(id);
 		return (colName.toString());
 	}
 }
