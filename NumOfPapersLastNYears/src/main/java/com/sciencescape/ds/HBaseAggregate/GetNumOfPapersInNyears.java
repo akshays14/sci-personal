@@ -301,16 +301,24 @@ public final class GetNumOfPapersInNyears {
 			System.exit(1);
 		}
 
+		/* give usage and exit if no parameter is provided */
+		if (args.length == 0) {
+			System.err.println(parser.formatUsage());
+			System.exit(1);
+		}
+
 		/* retrieve parameters and set class variable */
 		// set hbase input table
 		inputHBaseTable = ns.getString(Constants.CLA.INPUT_TABLE_ARG);
-		logger.info(messages.getString("in_hbase_table"), inputHBaseTable);
-		// set output type
-		String opType = ns.getString(Constants.CLA.OUTPUT_FORMAT_ARG);
-		if (opType == null) {
+		if (inputHBaseTable == null) {
 			throw (new UnexpectedArgumentsException(
-					messages.getString("output_frmt_null")));
+					messages.getString("input_table_null")));
 		}
+		logger.info(messages.getString("in_hbase_table"), inputHBaseTable);
+		// set output type (defaults to FS, so cannot be null)
+		String opType = ns.getString(Constants.CLA.OUTPUT_FORMAT_ARG);
+		logger.info(messages.getString("output_frmt_type"), opType);
+		// set output type option
 		if (opType.compareTo(Constants.CLA.OUTPUT_OPT_HBASE_CHOICE) == 0) {
 			outputType = OutputType.HBASE;
 		} else if (opType.compareTo(Constants.CLA.OUTPUT_OPT_FS_CHOICE) == 0) {
@@ -359,7 +367,7 @@ public final class GetNumOfPapersInNyears {
 			logger.error(ExceptionUtils.getStackTrace(e));
 			System.exit(1);
 		}
-		// create configuration for job and job
+		// create configuration for job
 		Configuration conf = HBaseConfiguration.create();
 		Job job = null;
 		try {
