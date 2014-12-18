@@ -128,5 +128,9 @@ public class Constants {
 		public static final String OUTPUT_TABLE_ARG = "outputTable";
 		/**!< output filesystem file argument */
 		public static final String OUTPUT_FILE_ARG = "outputFile";
+		/**!< number of years option short */
+		public static final String NUM_OF_YEARS_OPT_SHORT = "-n";
+		/**!< number of years option long */
+		public static final String NUM_OF_YEARS_OPT_LONG  = "--numberOfYears";
 	}
 }

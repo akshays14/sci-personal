@@ -291,6 +291,8 @@ public final class GetNumOfPapersInNyears {
 		parser.addArgument(Constants.CLA.OUTPUT_FILE_OPT_SHORT,
 				Constants.CLA.OUTPUT_FILE_OPT_LONG)
 				.help(Constants.CLA.OUTPUT_FILE_OPT_DESCRIPTION);
+		// number of years (to find papers in last 'n' years)
+		parser.addArgument(nameOrFlags)
 
 		Namespace ns = null;
 		try {
