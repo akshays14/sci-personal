@@ -1,4 +1,4 @@
-package main.java.com.sciencescape.ds.providers.hbaseprovider;
+package com.sciencescape.ds.providers.hbaseprovider;
 
 /**
  * <h1>Provider for HBase</h1>

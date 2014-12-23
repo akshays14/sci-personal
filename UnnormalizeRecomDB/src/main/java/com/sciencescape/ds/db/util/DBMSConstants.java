@@ -1,4 +1,4 @@
-package main.java.com.sciencescape.ds.db.util;
+package com.sciencescape.ds.db.util;
 
 public class DBMSConstants {
 

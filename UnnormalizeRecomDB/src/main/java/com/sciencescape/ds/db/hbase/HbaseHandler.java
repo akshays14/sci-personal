@@ -1,4 +1,4 @@
-package main.java.com.sciencescape.ds.db.hbase;
+package com.sciencescape.ds.db.hbase;
 
 import java.io.IOException;
 import java.util.Map;
@@ -9,12 +9,12 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
-import main.java.com.sciencescape.ds.db.rdbms.coredb.AuthorFields;
-import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
-import main.java.com.sciencescape.ds.db.rdbms.coredb.FieldsFields;
-import main.java.com.sciencescape.ds.db.rdbms.coredb.InstitutionFields;
-import main.java.com.sciencescape.ds.db.util.NoSQLConstants;
+import com.sciencescape.ds.db.rdbms.common.DataRecord;
+import com.sciencescape.ds.db.rdbms.coredb.AuthorFields;
+import com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
+import com.sciencescape.ds.db.rdbms.coredb.FieldsFields;
+import com.sciencescape.ds.db.rdbms.coredb.InstitutionFields;
+import com.sciencescape.ds.db.util.NoSQLConstants;
 
 /**
  * @class HbaseHandler HbaseHandler.java

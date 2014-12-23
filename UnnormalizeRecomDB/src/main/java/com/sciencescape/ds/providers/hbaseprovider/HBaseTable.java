@@ -1,4 +1,4 @@
-package main.java.com.sciencescape.ds.providers.hbaseprovider;
+package com.sciencescape.ds.providers.hbaseprovider;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
@@ -20,13 +20,13 @@ public class HBaseTable {
 	private Configuration config;
 	/**!< HBase table object from HBase Client API */
 	private HTable htable;
-	
-	public HBaseTable(final HBaseProvider hbaseProvider, 
-			final String tableName) {
+
+	public HBaseTable(final HBaseProvider hbaseProvider,
+			final String tableName) throws HBaseProviderException {
 		this.tableName = tableName;
 		/* check if HbaseProvider object is proper */
 		if (hbaseProvider == null) {
-			
+			throw new HBaseProviderException();
 		}
 	}
 

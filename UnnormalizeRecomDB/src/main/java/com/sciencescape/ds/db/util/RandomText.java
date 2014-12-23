@@ -1,4 +1,4 @@
-package main.java.com.sciencescape.ds.db.util;
+package com.sciencescape.ds.db.util;
 import java.util.Random;
 
 import org.apache.commons.lang.RandomStringUtils;
