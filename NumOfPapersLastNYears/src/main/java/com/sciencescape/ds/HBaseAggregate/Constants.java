@@ -30,11 +30,9 @@ public class Constants {
 	public static class HBaseDB {
 		/* Output table constants */
 		/**!< column family written by reducer job  */
-		public static final String YEARS_COLUMN_FAMILY = "YEARS";
-		/**!< column qualifier written by reducer job for minimum year */
-		public static final String MIN_YEAR_COLUMN_QUALIFIER = "min";
-		/**!< column qualifier written by reducer job for maximum year */
-		public static final String MAX_YEAR_COLUMN_QUALIFIER = "max";
+		public static final String NUM_PAPERS_COLUMN_FAMILY = "NUM_PAPERS";
+		/**!< column qualifier written by reducer job for total # of papers */
+		public static final String TOTAL_PAPERS_COLUMN_QUALIFIER = "total";
 		/* Input table constants */
 		/**!< author column family for scan object */
 		public static final String AUTHORS_COLUMN_FAMILY = "AUTHORS";
@@ -42,21 +40,6 @@ public class Constants {
 		public static final String DATE_COLUMN_FAMILY = "DATE";
 		/**!< year column for scan object */
 		public static final String YEAR_COLUMN = "year";
-
-	}
-
-	/**
-	 * @class ReduceAggregationFormat Constants.java
-	 * @author akshay
-	 *
-	 * Class having constants specific to the aggregate format,
-	 * used by reducer classes.
-	 */
-	public static class ReduceAggregationFormat {
-		/**!< prefix for list after aggregation of keys */
-		public static final String LIST_PREFIX = "Years : ";
-		/**!< delimiter for aggregate list of keys */
-		public static final String DELIMITER = " - ";
 	}
 
 	/**
@@ -132,5 +115,9 @@ public class Constants {
 		public static final String NUM_OF_YEARS_OPT_SHORT = "-n";
 		/**!< number of years option long */
 		public static final String NUM_OF_YEARS_OPT_LONG  = "--numberOfYears";
+		/**!< number of past-years to find aggregate on */
+		public static final String NUM_OF_YEARS_OPT_DESCRIPTION =
+				"Number of past-years (from present) to find aggregate on";
+
 	}
 }

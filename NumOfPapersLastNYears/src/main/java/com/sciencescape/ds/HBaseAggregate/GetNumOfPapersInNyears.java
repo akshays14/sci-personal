@@ -1,10 +1,8 @@
 package com.sciencescape.ds.HBaseAggregate;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Calendar;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
@@ -63,6 +61,13 @@ public final class GetNumOfPapersInNyears {
 	private static String outputHBaseTable;
 	/**!< output Filesystem file to contain summary data */
 	private static String outputFilesystemFile;
+	/**!< number of past-years to find aggregate on */
+	private static int numOfYears;
+	/**!< integer value '1' in Immutable BytesWritable format */
+	private static final ImmutableBytesWritable ONE =
+			new ImmutableBytesWritable(Bytes.toBytes(1));
+	/**!< number of year n years ago from current data */
+	private static int nYearNumber;
 
 	/**!< Logger object */
 	private static Logger logger =
@@ -109,24 +114,24 @@ public final class GetNumOfPapersInNyears {
 				final Context context)
 						throws IOException, InterruptedException {
 			// get the publication year of the paper
-			ImmutableBytesWritable paperYear =
-					new ImmutableBytesWritable(values.getValue(
-							Bytes.toBytes(Constants.HBaseDB.DATE_COLUMN_FAMILY),
-							Bytes.toBytes(Constants.HBaseDB.YEAR_COLUMN)));
-
+			int paperYearInt = Bytes.toInt(values.getValue(Bytes.toBytes(
+					Constants.HBaseDB.DATE_COLUMN_FAMILY),
+					Bytes.toBytes(Constants.HBaseDB.YEAR_COLUMN)));
 			/*
-			 *  get the authors of this paper from result object
-			 *  and write to context with year of publication of paper
+			 * check if the paper is published in last 'n' years
+			 * if it is, get the authors of this paper from result object
+			 * and write to context with count 1
 			 */
-			NavigableMap<byte[], byte[]> authorsMap =
-					values.getFamilyMap(Bytes.toBytes(
-							Constants.HBaseDB.AUTHORS_COLUMN_FAMILY));
-			for (Entry<byte[], byte[]> entry : authorsMap.entrySet()) {
-				ImmutableBytesWritable author = new
-						ImmutableBytesWritable(entry.getKey());
-				context.write(author, paperYear);
+			if (paperYearInt > nYearNumber) {
+				NavigableMap<byte[], byte[]> authorsMap =
+						values.getFamilyMap(Bytes.toBytes(
+								Constants.HBaseDB.AUTHORS_COLUMN_FAMILY));
+				for (Entry<byte[], byte[]> entry : authorsMap.entrySet()) {
+					ImmutableBytesWritable author = new
+							ImmutableBytesWritable(entry.getKey());
+					context.write(author, ONE);
+				}
 			}
-
 			// update number of records processed
 			numRecords++;
 			// update status once in a while
@@ -161,21 +166,18 @@ public final class GetNumOfPapersInNyears {
 				final Iterable<ImmutableBytesWritable> values,
 				final Context context)
 						throws IOException, InterruptedException {
-			List<Integer> publYearList = new ArrayList<Integer>();
 			Iterator<ImmutableBytesWritable> valIter = values.iterator();
+			int totalPapers = 0;
 			while (valIter.hasNext()) {
-				publYearList.add(Bytes.toInt(valIter.next().get()));
+				totalPapers++;
+				valIter.next();
 			}
-			int minYear = Collections.min(publYearList);
-			int maxYear = Collections.max(publYearList);
-			// write minimum and maximum year
+			// write total number of papers in last 'n' years
 			Put put = new Put(key.get());
-			put.add(Bytes.toBytes(Constants.HBaseDB.YEARS_COLUMN_FAMILY),
-					Bytes.toBytes(Constants.HBaseDB.MIN_YEAR_COLUMN_QUALIFIER),
-					Bytes.toBytes(minYear));
-			put.add(Bytes.toBytes(Constants.HBaseDB.YEARS_COLUMN_FAMILY),
-					Bytes.toBytes(Constants.HBaseDB.MAX_YEAR_COLUMN_QUALIFIER),
-					Bytes.toBytes(maxYear));
+			put.add(Bytes.toBytes(Constants.HBaseDB.NUM_PAPERS_COLUMN_FAMILY),
+					Bytes.toBytes(
+							Constants.HBaseDB.TOTAL_PAPERS_COLUMN_QUALIFIER),
+					Bytes.toBytes(totalPapers));
 			context.write(key, put);
 		}
 	}
@@ -199,22 +201,29 @@ public final class GetNumOfPapersInNyears {
 				final Iterable<ImmutableBytesWritable> values,
 				final Context context)
 					throws IOException, InterruptedException {
-			List<Integer> publYearList = new ArrayList<Integer>();
-			Iterator<ImmutableBytesWritable> valIter = values.iterator();
-			while (valIter.hasNext()) {
-				publYearList.add(Bytes.toInt(valIter.next().get()));
-			}
-			int minYear = Collections.min(publYearList);
-			int maxYear = Collections.max(publYearList);
 
-			StringBuilder activeYears = new StringBuilder(
-					Constants.ReduceAggregationFormat.LIST_PREFIX);
-			activeYears.append(minYear);
-			activeYears.append(Constants.ReduceAggregationFormat.DELIMITER);
-			activeYears.append(maxYear);
+			Iterator<ImmutableBytesWritable> valIter = values.iterator();
+			int totalPapers = 0;
+			while (valIter.hasNext()) {
+				totalPapers++;
+				valIter.next();
+			}
+			// write total number of papers in last 'n' years
+			Put put = new Put(key.get());
+			put.add(Bytes.toBytes(Constants.HBaseDB.NUM_PAPERS_COLUMN_FAMILY),
+					Bytes.toBytes(
+							Constants.HBaseDB.TOTAL_PAPERS_COLUMN_QUALIFIER),
+					Bytes.toBytes(totalPapers));
 			context.write(new Text(key.get()),
-					new Text(Bytes.toBytes(activeYears.toString())));
+					new Text(Bytes.toBytes(totalPapers)));
 		}
+	}
+
+	/**
+	 * Function to get the number of year N years ago.
+	 */
+	static void setYearNumberNYearsAgo() {
+		nYearNumber = Calendar.getInstance().get(Calendar.YEAR) - numOfYears;
 	}
 
 	/**
@@ -292,7 +301,9 @@ public final class GetNumOfPapersInNyears {
 				Constants.CLA.OUTPUT_FILE_OPT_LONG)
 				.help(Constants.CLA.OUTPUT_FILE_OPT_DESCRIPTION);
 		// number of years (to find papers in last 'n' years)
-		parser.addArgument(nameOrFlags)
+		parser.addArgument(Constants.CLA.NUM_OF_YEARS_OPT_SHORT,
+				Constants.CLA.NUM_OF_YEARS_OPT_LONG)
+				.help(Constants.CLA.NUM_OF_YEARS_OPT_DESCRIPTION);
 
 		Namespace ns = null;
 		try {
@@ -329,6 +340,10 @@ public final class GetNumOfPapersInNyears {
 			throw (new UnexpectedArgumentsException(
 					messages.getString("output_frmt_invalid"), opType));
 		}
+		// set the numOfYears
+		//numOfYears = ns.getInt(C)
+
+
 		// set output table name
 		outputHBaseTable = ns.getString(Constants.CLA.OUTPUT_TABLE_ARG);
 		// set output file name
@@ -382,13 +397,15 @@ public final class GetNumOfPapersInNyears {
 		}
 		// create scan object
 		Scan scan = new Scan();
-		scan.setStartRow(Bytes.toBytes("1"));
-		scan.setStopRow(Bytes.toBytes("15"));
+		//scan.setStartRow(Bytes.toBytes("1"));
+		//scan.setStopRow(Bytes.toBytes("15"));
 		scan.addFamily(Bytes.toBytes(Constants.HBaseDB.AUTHORS_COLUMN_FAMILY));
 		scan.addColumn(Bytes.toBytes(Constants.HBaseDB.DATE_COLUMN_FAMILY),
 				Bytes.toBytes(Constants.HBaseDB.YEAR_COLUMN));
 		// set the class of the job
 		job.setJarByClass(GetNumOfPapersInNyears.class);
+		// set the year number, which should be greater than publication year
+		setYearNumberNYearsAgo();
 		// choose the right output target
 		switch (outputType) {
 		case HBASE:
