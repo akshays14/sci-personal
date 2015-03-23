@@ -8,6 +8,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
+
 import main.java.com.sciencescape.ds.db.hbase.HbaseHandler;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
 import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.JDBCException;
@@ -30,6 +35,104 @@ public final class DataTransfer {
 	 * private constructor to avoid initialization of the class.
 	 */
 	private DataTransfer() {
+	}
+
+	/**
+	 * Method to check provided command line arguments.
+	 *
+	 * @param args list of command line arguments
+	 * @throws UnexpectedArgumentsException if arguments are unexpected
+	 */
+	static void retrieveArguments(final String[] args)
+			throws UnexpectedArgumentsException {
+		/* specify expected command line arguments */
+		ArgumentParser parser = ArgumentParsers
+				.newArgumentParser(Constants.CLA.PROGRAM_NAME)
+				.defaultHelp(true)
+				.description(Constants.CLA.PROGRAM_DESCRIPTION);
+		// input hbase table
+		parser.addArgument(Constants.CLA.INPUT_TABLE_OPT_SHORT,
+				Constants.CLA.INPUT_TABLE_OPT_LONG)
+				.help(Constants.CLA.INPUT_TABLE_OPT_DESCRIPTION);
+		// target output
+		parser.addArgument(Constants.CLA.OUTPUT_OPT_SHORT,
+				Constants.CLA.OUTPUT_OPT_LONG)
+				.choices(Constants.CLA.OUTPUT_OPT_HBASE_CHOICE,
+						Constants.CLA.OUTPUT_OPT_FS_CHOICE)
+						.setDefault(Constants.CLA.OUTPUT_OPT_FS_CHOICE)
+						.help(Constants.CLA.OUTPUT_OPT_DESCRIPTION);
+		// output hbase table
+		parser.addArgument(Constants.CLA.OUTPUT_TABLE_OPT_SHORT,
+				Constants.CLA.OUTPUT_TABLE_OPT_LONG)
+				.help(Constants.CLA.OUTPUT_TABLE_OPT_DESCRIPTION);
+		// output filesystem file
+		parser.addArgument(Constants.CLA.OUTPUT_FILE_OPT_SHORT,
+				Constants.CLA.OUTPUT_FILE_OPT_LONG)
+				.help(Constants.CLA.OUTPUT_FILE_OPT_DESCRIPTION);
+		// number of years (to find papers in last 'n' years)
+		parser.addArgument(Constants.CLA.NUM_OF_YEARS_OPT_SHORT,
+				Constants.CLA.NUM_OF_YEARS_OPT_LONG)
+				.help(Constants.CLA.NUM_OF_YEARS_OPT_DESCRIPTION);
+
+		Namespace ns = null;
+		try {
+			ns = parser.parseArgs(args);
+		} catch (ArgumentParserException e) {
+			parser.handleError(e);
+			logger.error(e.getMessage());
+			System.exit(1);
+		}
+
+		/* give usage and exit if no parameter is provided */
+		if (args.length == 0) {
+			System.err.println(parser.formatUsage());
+			System.exit(1);
+		}
+
+		/* retrieve parameters and set class variable */
+		// set hbase input table
+		inputHBaseTable = ns.getString(Constants.CLA.INPUT_TABLE_ARG);
+		if (inputHBaseTable == null) {
+			throw (new UnexpectedArgumentsException(
+					messages.getString("input_table_null")));
+		}
+		logger.info(messages.getString("in_hbase_table"), inputHBaseTable);
+		// set output type (defaults to FS, so cannot be null)
+		String opType = ns.getString(Constants.CLA.OUTPUT_FORMAT_ARG);
+		logger.info(messages.getString("output_frmt_type"), opType);
+		// set output type option
+		if (opType.compareTo(Constants.CLA.OUTPUT_OPT_HBASE_CHOICE) == 0) {
+			outputType = OutputType.HBASE;
+		} else if (opType.compareTo(Constants.CLA.OUTPUT_OPT_FS_CHOICE) == 0) {
+			outputType = OutputType.FILESYSTEM;
+		} else {
+			throw (new UnexpectedArgumentsException(
+					messages.getString("output_frmt_invalid"), opType));
+		}
+		// set the numOfYears
+		//numOfYears = ns.getInt(C)
+
+
+		// set output table name
+		outputHBaseTable = ns.getString(Constants.CLA.OUTPUT_TABLE_ARG);
+		// set output file name
+		outputFilesystemFile = ns.getString(Constants.CLA.OUTPUT_FILE_ARG);
+
+		/* check for validity of provided arguments */
+		// check if outputHBaseTable is specified if output is HBase
+		if (outputType == OutputType.HBASE) {
+			if (outputHBaseTable == null) {
+				throw (new UnexpectedArgumentsException(
+						messages.getString("provide_op_table")));
+			}
+		}
+		// check if outputFilesystemFile is specified if output is filesystem
+		if (outputType == OutputType.FILESYSTEM) {
+			if (outputFilesystemFile == null) {
+				throw (new UnexpectedArgumentsException(
+						messages.getString("provide_op_file")));
+			}
+		}
 	}
 
 	/**

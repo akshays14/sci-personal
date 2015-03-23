@@ -79,5 +79,10 @@
 				<artifactId>mysql-connector-java</artifactId>
 				<version>5.1.18</version>
 			</dependency>
+			<dependency>
+				<groupId>net.sourceforge.argparse4j</groupId>
+				<artifactId>argparse4j</artifactId>
+				<version>0.4.4</version>
+			</dependency>
 	</dependencies>
 </project>
