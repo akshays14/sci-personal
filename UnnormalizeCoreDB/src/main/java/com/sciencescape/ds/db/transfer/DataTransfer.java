@@ -44,7 +44,7 @@ public final class DataTransfer {
 	 * @throws UnexpectedArgumentsException if arguments are unexpected
 	 */
 	static void retrieveArguments(final String[] args)
-			throws UnexpectedArgumentsException {
+			throws IllegalArgumentException {
 		/* specify expected command line arguments */
 		ArgumentParser parser = ArgumentParsers
 				.newArgumentParser(Constants.CLA.PROGRAM_NAME)
