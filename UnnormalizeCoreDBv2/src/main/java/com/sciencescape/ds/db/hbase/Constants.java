@@ -22,9 +22,9 @@ public class Constants {
 		public static final String ZK_PORT =
 				"hbase.zookeeper.property.clientPort";
 		/**!< hbase master server */
-		public static final String MASTER= "hbase.master";
+		public static final String MASTER = "hbase.master";
 		/**!< the directory into which HBase persists in region servers */
-		public static final String ROOT_DIR ="hbase.rootdir";
+		public static final String ROOT_DIR = "hbase.rootdir";
 		/**!< hbase distributed mode */
 		public static final String DISTRIBUTED_MODE =
 				"hbase.cluster.distributed";
