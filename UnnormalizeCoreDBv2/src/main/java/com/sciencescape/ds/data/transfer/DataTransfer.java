@@ -1,20 +1,12 @@
 package com.sciencescape.ds.data.transfer;
 
-import java.io.IOException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*import main.java.com.sciencescape.ds.db.hbase.HbaseHandler;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
@@ -54,7 +46,7 @@ public final class DataTransfer {
 				.description(Constants.CLA.PROGRAM_DESCRIPTION);
 		// output hbase table
 		parser.addArgument(Constants.CLA.OUTPUT_TABLE_OPT_SHORT,
-				Constants.CLA.OUTPUT_TABLE_OPT_LONG)
+				Constants.CLA.OUTPUT_TABLE_OPT_LONG).required(true)
 				.help(Constants.CLA.OUTPUT_TABLE_OPT_DESCRIPTION);
 		// target year
 		parser.addArgument(Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_SHORT,
@@ -76,7 +68,7 @@ public final class DataTransfer {
 			throw (new IllegalArgumentException(
 					"Output hbase table must be provided"));
 		}
-		logger.info("Input HBase Table : {}.", hbaseTable);
+		logger.info("Output HBase Table : {}.", hbaseTable);
 
 		// set the target number of year
 		targetYear = ns.getString(Constants.CLA.PAPER_PUBLICATION_ARG);
