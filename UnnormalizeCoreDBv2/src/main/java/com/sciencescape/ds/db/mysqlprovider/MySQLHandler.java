@@ -1,6 +1,5 @@
 package com.sciencescape.ds.db.mysqlprovider;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -53,71 +52,90 @@ public class MySQLHandler {
 	 * @param username MySQL server user
 	 * @param password MySQL user's password
 	 * @param database name of the database
-	 * @throws JDBCException
+	 * @throws MySQLProviderException when db-server arguments are not expected
 	 */
 	public MySQLHandler(final String host, final int port,
 			final String username, final String password,
-			final String database) throws JDBCException {
+			final String database) throws MySQLProviderException {
 		/* verify inputs */
 		if (host == null) {
-			throw new JDBCException(DBMSConstants.DatabaseConstants.DB_HOST_NULL_MESSAGE);
+			throw new MySQLProviderException(
+					DBMSConstants.DatabaseConstants.DB_HOST_NULL_MESSAGE);
 		}
 		if (port <= 0) {
-			throw new JDBCException(DBMSConstants.DatabaseConstants.DB_PORT_INVALID_MESSAGE);
+			throw new MySQLProviderException(
+					DBMSConstants.DatabaseConstants.DB_PORT_INVALID_MESSAGE);
 		}
 		if (username == null) {
-			throw new JDBCException(DBMSConstants.DatabaseConstants.DB_USERNAME_NULL_MESSAGE);
+			throw new MySQLProviderException(
+					DBMSConstants.DatabaseConstants.DB_USERNAME_NULL_MESSAGE);
 		}
 		if (password == null) {
-			throw new JDBCException(DBMSConstants.DatabaseConstants.DB_PASSWORD_NULL_MESSAGE);
+			throw new MySQLProviderException(
+					DBMSConstants.DatabaseConstants.DB_PASSWORD_NULL_MESSAGE);
 		}
 		if (database == null) {
-			throw new JDBCException(DBMSConstants.DatabaseConstants.DB_NAME_NULL_MESSAGE);
+			throw new MySQLProviderException(
+					DBMSConstants.DatabaseConstants.DB_NAME_NULL_MESSAGE);
 		}
 		/* assign the values */
-		dbHost = host;
-		dbPort = port;
-		dbUser = username;
-		dbPassword = password;
-		dbName = database;
+		this.dbHost = host;
+		this.dbPort = port;
+		this.dbUser = username;
+		this.dbPassword = password;
+		this.dbName = database;
 
+		/**
+		 * TODO: revisit if we want to keep this here in constructor
+		 */
 		// connect to database
-		try {
-			connect();
-		} catch (IOException e) {
-			throw new JDBCException(e.getMessage());
-		}
+		this.connect();
 	}
 
 	/**
-	 * Connect method for MySQL
+	 * Connect method for {@link MySQLHandler}.
+	 *
+	 * @param autoCommit true to enable auto-commit mode
+	 * @throws MySQLProviderException if not able to connect to MySQL server
 	 */
-	public void connect() throws IOException {
+	public final void connect(final boolean autoCommit)
+			throws MySQLProviderException {
 		try {
 			try {
 				Class.forName(DBMSConstants.MySQLHandlerConstants.
 						JDBC_DRIVER_STRING);
 			} catch (ClassNotFoundException ex) {
-				throw new IOException(DBMSConstants.MySQLHandlerConstants.
-						JDBC_DRIVER_LOAD_ERROR);
+				throw new MySQLProviderException(DBMSConstants.
+						MySQLHandlerConstants.JDBC_DRIVER_LOAD_ERROR);
 			}
 			String jdbcURL = makeJDBCurl();
 			dbConnection = DriverManager.getConnection(jdbcURL, dbUser,
 					dbPassword);
-			dbConnection.setAutoCommit(true);
+			dbConnection.setAutoCommit(autoCommit);
 		} catch (SQLException ex) {
-			throw new IOException(ex);
+			throw new MySQLProviderException(ex);
 		}
 	}
 
 	/**
-	 * close method for {@link MySQLHandler}
+	 * Connect method for {@link MySQLHandler}.
+	 *
+	 * @throws MySQLProviderException if not able to connect to MySQL server
 	 */
-	public void close() throws IOException {
+	public final void connect() throws MySQLProviderException {
+		this.connect(true);
+	}
+
+	/**
+	 * close method for {@link MySQLHandler}.
+	 *
+	 * @throws MySQLProviderException if not able to close connection to DB
+	 */
+	public final void close() throws MySQLProviderException {
 		try {
-			dbConnection.close();
+			this.dbConnection.close();
 		} catch (SQLException ex) {
-			throw new IOException(ex);
+			throw new MySQLProviderException(ex);
 		}
 	}
 
@@ -134,7 +152,8 @@ public class MySQLHandler {
 				MySQLHandlerConstants.JDBC_PROTOCOL_STRING);
 		/* add db host */
 		url.append(dbHost);
-		url.append(DBMSConstants.MySQLHandlerConstants.JDBC_HOST_PORT_SEPERATOR);
+		url.append(
+				DBMSConstants.MySQLHandlerConstants.JDBC_HOST_PORT_SEPERATOR);
 		/* add db port */
 		url.append(dbPort);
 		url.append(DBMSConstants.MySQLHandlerConstants.JDBC_URL_DELIMITER);
@@ -146,19 +165,28 @@ public class MySQLHandler {
 		return (url.toString());
 	}
 
-	public ResultSet executeQuery(String query) throws IOException {
+	/**
+	 * Execute the given SQL statement.
+	 *
+	 * @param query SQL statement
+	 * @return ResultSet table of data representing a database result set
+	 * @throws MySQLProviderException as
+	 */
+	public final ResultSet executeQuery(final String query)
+			throws MySQLProviderException {
 		if (query == null) {
-			throw new IOException(DBMSConstants.MySQLHandlerOperations.QUERY_NULL_MESSAGE);
+			throw new MySQLProviderException(
+					DBMSConstants.MySQLHandlerOperations.QUERY_NULL_MESSAGE);
 		}
 		Statement statement = null;
 		ResultSet resultSet = null;
 		try {
 			// prepare the statement
-			statement = dbConnection.createStatement();
+			statement = this.dbConnection.createStatement();
 			// run the query
 			resultSet = statement.executeQuery(query);
 		} catch (SQLException ex) {
-			throw new IOException(ex);
+			throw new MySQLProviderException(ex);
 		}
 		return resultSet;
 	}
