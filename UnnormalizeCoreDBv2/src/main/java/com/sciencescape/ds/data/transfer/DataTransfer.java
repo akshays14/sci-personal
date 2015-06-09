@@ -1,5 +1,13 @@
 package com.sciencescape.ds.data.transfer;
 
+import java.io.IOException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -8,14 +16,13 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*import main.java.com.sciencescape.ds.db.hbase.HbaseHandler;
-import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
-import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.JDBCException;
-import main.java.com.sciencescape.ds.db.rdbms.mysqlhandler.MySQLHandler;
-import main.java.com.sciencescape.ds.db.util.CoreDBConstants;
-import main.java.com.sciencescape.ds.db.util.DataTransferConstants;
-import main.java.com.sciencescape.ds.db.util.NoSQLConstants;
- */
+import com.sciencescape.ds.db.hbase.HbaseHandler;
+import com.sciencescape.ds.db.hbase.NoSQLConstants;
+import com.sciencescape.ds.db.mysql.coredb.CoreDBConstants;
+import com.sciencescape.ds.db.mysql.coredb.CoreDBOpException;
+import com.sciencescape.ds.db.mysql.coredb.DenormalizedFields;
+import com.sciencescape.ds.db.mysqlprovider.MySQLHandler;
+import com.sciencescape.ds.db.mysqlprovider.MySQLProviderException;
 
 /**
  * Class to de-normalize and transfer data from MySQL to HBase.
@@ -29,6 +36,10 @@ public final class DataTransfer {
 	private String hbaseTable;
 	/**!< target publication year */
 	private String targetYear;
+	/**!< deployment environment */
+	private String deploymentEnvironment;
+	/**!< source directory */
+	private String sourceDirectory;
 	/**!< logger object */
 	private Logger logger = LoggerFactory.getLogger(DataTransfer.class);
 
@@ -77,6 +88,27 @@ public final class DataTransfer {
 					"Target year of publicatoin table must be specified"));
 		}
 		logger.info("Target year of publication : {}.", targetYear);
+
+		// read the environment variables
+		this.readEnvironmentVariables();
+	}
+
+	/**
+	 * to read expected environment variables.
+	 */
+	private final void readEnvironmentVariables() {
+		this.deploymentEnvironment =
+				System.getenv(Constants.EnvironmentVariables.DEPLOY_ENV);
+		if (this.deploymentEnvironment == null) {
+			throw (new IllegalArgumentException(
+					"Environment Variable [DEPLOY_ENV] is not provided"));
+		}
+		this.sourceDirectory =
+				System.getenv(Constants.EnvironmentVariables.SOURCE_DIRECTORY);
+		if (this.sourceDirectory == null) {
+			throw (new IllegalArgumentException(
+					"Environment Variable [SRCDIR] is not provided"));
+		}
 	}
 
 	/**
@@ -89,17 +121,19 @@ public final class DataTransfer {
 		// Create logger object
 		/**!< logger object */
 		Logger logger = LoggerFactory.getLogger(DataTransfer.class);
-		// Create DataTransfer object
+		// Create DataTransfer object to read CLAs
+		DataTransfer dataTransfer = null;
 		try {
-			DataTransfer dataTransfer = new DataTransfer(args);
+			dataTransfer = new DataTransfer(args);
 		} catch (IllegalArgumentException e) {
 			logger.error("Unexpected arguments to the program", e);
+			System.exit(1);
 		}
 		/*
 		 * create necessary objects
 		 */
 		// Create executor service
-		/*	ExecutorService executorService = Executors.newFixedThreadPool(
+		ExecutorService executorService = Executors.newFixedThreadPool(
 				DataTransferConstants.DataTransfer.THREAD_POOL_SIZE);
 		// Get a blocking queue
 		BlockingQueue<DenormalizedFields> queue =
@@ -114,30 +148,33 @@ public final class DataTransfer {
 					CoreDBConstants.DBServer.DEV_DB_USER,
 					CoreDBConstants.DBServer.DEV_DB_PASSWORD,
 					CoreDBConstants.DBServer.CORE_DB);
-		} catch (JDBCException e) {
+		} catch (MySQLProviderException e) {
 			System.err.println("Could not create MySQLHandler : "
 					+ e.getMessage());
 			e.printStackTrace();
-			return;
+			System.exit(1);
 		}
+
 		// Connect to HBase
 		HbaseHandler hh = new HbaseHandler(
-				NoSQLConstants.HBaseClusterConstants.ZK_QUOROM,
-				NoSQLConstants.HBaseClusterConstants.ZK_CLIENT_PORT,
-				NoSQLConstants.HBaseClusterConstants.HBASE_MASTER,
-				NoSQLConstants.HBaseClusterConstants.HBASE_TABLE_NAME);
+				NoSQLConstants.HBaseCluster.ZK_QUOROM,
+				NoSQLConstants.HBaseCluster.ZK_CLIENT_PORT,
+				NoSQLConstants.HBaseCluster.HBASE_MASTER,
+				dataTransfer.hbaseTable);
 		try {
 			hh.connect(false);
 		} catch (IOException e) {
 			System.err.println("Could not conenct to HBase" + e.getMessage());
 			e.printStackTrace();
-			return;
+			System.exit(1);
 		}
+
 		// Create consumers and producers objects
 		DataRecordProducer queueProducer = null;
 		DataRecordConsumer queueConsumer = null;
 		try {
-			queueProducer = new DataRecordProducer(queue, my, publicationYear);
+			queueProducer = new DataRecordProducer(queue, my,
+					Integer.parseInt(dataTransfer.targetYear));
 			queueConsumer = new DataRecordConsumer(queue, hh);
 		} catch (CoreDBOpException e) {
 			System.err.println(e.getMessage());
@@ -145,11 +182,12 @@ public final class DataTransfer {
 			System.exit(1);
 		}
 
+
 		// start the timer
 		long startTime = System.currentTimeMillis();
 
 
-		 * start the producer and consumer thread
+		// start the producer and consumer thread
 
 		Future<?> producer = executorService.submit(queueProducer);
 		Future<?> consumer = executorService.submit(queueConsumer);
@@ -173,7 +211,7 @@ public final class DataTransfer {
 		}
 
 
-		 * clean-ups
+		// clean-ups
 
 		// shutdown executor service
 		executorService.shutdown();
@@ -187,7 +225,7 @@ public final class DataTransfer {
 		// close the connection to MySQL DB
 		try {
 			my.close();
-		} catch (IOException e) {
+		} catch (MySQLProviderException e) {
 			System.err.println(e.getMessage());
 			e.printStackTrace();
 		}
@@ -203,5 +241,4 @@ public final class DataTransfer {
 		System.out.println("Time taken (ms) : " +
 				(System.currentTimeMillis() - startTime));
 	}
-		 */}
 }

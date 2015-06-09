@@ -9,6 +9,11 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.sciencescape.ds.db.mysql.coredb.AuthorFields;
+import com.sciencescape.ds.db.mysql.coredb.DenormalizedFields;
+import com.sciencescape.ds.db.mysql.coredb.FieldsFields;
+import com.sciencescape.ds.db.mysql.coredb.InstitutionFields;
+
 /*import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.AuthorFields;
 import main.java.com.sciencescape.ds.db.rdbms.coredb.DenormalizedFields;
@@ -61,11 +66,11 @@ public class HbaseHandler {
 	private void configureExternalHBase() {
 		config.clear();
 		//specify ZK setup
-		config.set(Constants.HBaseConfigConstants.ZK_QUOROM, zkQurom);
-		config.set(Constants.HBaseConfigConstants.ZK_PORT, zkPort);
+		config.set(Constants.HBaseConfig.ZK_QUOROM, zkQurom);
+		config.set(Constants.HBaseConfig.ZK_PORT, zkPort);
 		// specify HBase setup
-		config.set(Constants.HBaseConfigConstants.MASTER, hbaseMaster);
-		config.set(Constants.HBaseConfigConstants.DISTRIBUTED_MODE,
+		config.set(Constants.HBaseConfig.MASTER, hbaseMaster);
+		config.set(Constants.HBaseConfig.DISTRIBUTED_MODE,
 				Constants.Defaults.HBASE_DISTRIBUTED_MODE);
 	}
 
@@ -114,9 +119,6 @@ public class HbaseHandler {
 	 * @throws IOException
 	 */
 	public void writeRecord(DenormalizedFields df) throws IOException {
-		if (table == null) {
-			initalizeWriter();
-		}
 		if (df == null) {
 			throw new IOException("Given DenormalizedFields object is null");
 		}
@@ -191,7 +193,7 @@ public class HbaseHandler {
 			for (Map.Entry<Long, AuthorFields> entry : df.get_authors().entrySet()) {
 				String authorNameCol = buildAuthorNameColumnName(entry.getKey());
 				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.AUTHORS),
-						Bytes.toBytes(authorNameCol), Bytes.toBytes(entry.getValue().get_name()));
+						Bytes.toBytes(authorNameCol), Bytes.toBytes(entry.getValue().getName()));
 			}
 		}
 		// add institutions
@@ -200,9 +202,9 @@ public class HbaseHandler {
 				String rawAffColName = buildRawAffColumnName(entry.getKey());
 				String normAffColName = buildNormAffColumnName(entry.getKey());
 				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.INSTITUTION),
-						Bytes.toBytes(rawAffColName), Bytes.toBytes(entry.getValue().get_rawAffiliationName()));
+						Bytes.toBytes(rawAffColName), Bytes.toBytes(entry.getValue().getRawAffiliationName()));
 				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.INSTITUTION),
-						Bytes.toBytes(normAffColName), Bytes.toBytes(entry.getValue().get_normalizedAffiliationName()));
+						Bytes.toBytes(normAffColName), Bytes.toBytes(entry.getValue().getNormalizedAffiliationName()));
 			}
 		}
 		// add abstract
@@ -220,7 +222,7 @@ public class HbaseHandler {
 			for (Map.Entry<Long, FieldsFields> entry : df.get_fields().entrySet()) {
 				String fieldNameCol = buildFieldsNameColumnName(entry.getKey());
 				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.FIELDS),
-						Bytes.toBytes(fieldNameCol), Bytes.toBytes(entry.getValue().get_fieldName()));
+						Bytes.toBytes(fieldNameCol), Bytes.toBytes(entry.getValue().getName()));
 			}
 		}
 		// add import info

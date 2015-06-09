@@ -46,4 +46,32 @@ public class Constants {
 		public static final String PAPER_PUBLICATION_ARG =
 				"yearOfPaperPublication";
 	}
+	
+	/**
+	 * Class for constants specific to data transfer to HBase from MySQL.
+	 *
+	 * @author akshay
+	 * @version 0.1
+	 */
+	public static class DataTransfer {
+		/**!< For executor server thread pool */
+		public static final int THREAD_POOL_SIZE = 5;
+		/**!< Blocking queue size for data-ingestion */
+		public static final int BLOCKING_QUEUE_SIZE = 10000;
+		/**!< Dummy pmid for empty records */
+		public static final long EMPTY_RECORD_PMID = -1L;
+	}
+	
+	/**
+	 * Class for constants specific to Environment variables.
+	 *
+	 * @author akshay
+	 * @version 0.2
+	 */
+	public static class EnvironmentVariables {
+		/**!< For deployment environment */
+		public static final String DEPLOY_ENV = "DEPLOY_ENV";
+		/**!< For source directory */
+		public static final String SOURCE_DIRECTORY = "SRCDIR";
+	}
 }

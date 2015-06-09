@@ -31,6 +31,7 @@ public class DBMSConstants {
 		public static final String QUERY_NULL_MESSAGE = "Given query is null";
 		public static final String PMID_NULL_MESSAGE = "Given pm id is null";
 		public static final String VENUE_ID_NULL_MESSAGE = "Given venue id is null";
+		public static final String PAPER_ID_NULL_MESSAGE = "Given paper id is null";
 	}
 
 	public static class MySQLKeyWords {
