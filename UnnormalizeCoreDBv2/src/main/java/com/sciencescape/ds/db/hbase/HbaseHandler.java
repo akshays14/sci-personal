@@ -10,8 +10,9 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.sciencescape.ds.db.mysql.coredb.AuthorFields;
+import com.sciencescape.ds.db.mysql.coredb.CitationFields;
+import com.sciencescape.ds.db.mysql.coredb.ConceptFields;
 import com.sciencescape.ds.db.mysql.coredb.DenormalizedFields;
-import com.sciencescape.ds.db.mysql.coredb.FieldsFields;
 import com.sciencescape.ds.db.mysql.coredb.InstitutionFields;
 
 /*import main.java.com.sciencescape.ds.db.rdbms.common.DataRecord;
@@ -102,16 +103,198 @@ public class HbaseHandler {
 		this.config.clear();
 	}
 
-	/**
-	 * @brief write given @ record to HBase table
-	 * @param rec data-record to be written
-	 * @param hbaseCols array of string representing format of data-record
-	 * @throws IOException throws IOException on writing error
-	 *
-	 * @note the first item in the data-record would be treated as row-key
-	 * Function to write a record to a HBase cluster.
-	 */
+	public void writePaperFields(Put p, DenormalizedFields df) throws IOException {
+		// columns in ID CF
+		byte[] idCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.ID);
+		p.addImmutable(idCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.PMID), Bytes.toBytes(df.get_pmId()));
+		p.addImmutable(idCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.DOI), Bytes.toBytes(df.get_doi()));
+		p.addImmutable(idCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.PMC), Bytes.toBytes(df.get_pmcId()));
+		p.addImmutable(idCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.NLM), Bytes.toBytes(df.get_nlmId()));
 
+		// columns in PAPER CF
+		byte[] paperCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.PAPER);
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.TITLE), Bytes.toBytes(df.get_title()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.ISSN), Bytes.toBytes(df.get_issn()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.ISO), Bytes.toBytes(df.get_iso()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.VOLUME), Bytes.toBytes(df.get_volume()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.ISSUE), Bytes.toBytes(df.get_issue()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.TYPE), Bytes.toBytes(df.get_type()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.ABSTRACT), Bytes.toBytes(df.get_abstract()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.ABSTRACT_OTH), Bytes.toBytes(df.get_abstractOther()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.JOURNAL), Bytes.toBytes(df.get_journalName()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.MESH), Bytes.toBytes(df.get_meshTerms()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.KEYWORDS), Bytes.toBytes(df.get_keywords()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.CONCEPTS), Bytes.toBytes(df.get_conceptsRaw()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.GRANTS), Bytes.toBytes(df.get_grants()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.COUNTRY), Bytes.toBytes(df.get_country()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.LANG), Bytes.toBytes(df.get_language()));
+		p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.SOURCE), Bytes.toBytes(df.get_source()));
+		
+		// columns in DATE CF
+		byte[] dateCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE);
+		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.YEAR), Bytes.toBytes(df.get_year()));
+		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.MONTH), Bytes.toBytes(df.get_month()));
+		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.DAY), Bytes.toBytes(df.get_day()));
+		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.PM_RELEASED), Bytes.toBytes(df.get_datePmReleased()));
+		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.DATE_IMPORTED), Bytes.toBytes(df.get_dateImported()));
+	}
+	
+	public void writeCitationFields(Put p, DenormalizedFields df) throws IOException {
+		byte[] citationCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.CITATION);
+		// general columns
+		p.addImmutable(citationCFBytes, Bytes.toBytes(NoSQLConstants.CitationColumns.NUM_OF_REF), Bytes.toBytes(df.get_numOfReferences()));
+
+		// incoming citations related
+		int numberOfIncomingCitations = 0;
+		if (df.get_inCitations() != null) {
+			for (Map.Entry<Long, CitationFields> entry : df.get_inCitations().entrySet()) {
+				long id = entry.getValue().getId();
+				numberOfIncomingCitations++;
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_ID, id), Bytes.toBytes(entry.getValue().getId()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_PAPER_ID, id), Bytes.toBytes(entry.getValue().getIdFromPaper()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_DOI, id), Bytes.toBytes(entry.getValue().getDoiFromPaper()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_MONTH, id), Bytes.toBytes(entry.getValue().getMonth()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_YEAR, id), Bytes.toBytes(entry.getValue().getYear()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_CONF_SCORE, id), Bytes.toBytes(entry.getValue().getConfidenceScore()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_CONF_LEVEL, id), Bytes.toBytes(entry.getValue().getConfidenceLevel()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_SOURCE, id), Bytes.toBytes(entry.getValue().getSource()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getDateImported()));
+			}
+		}
+		p.addImmutable(citationCFBytes, Bytes.toBytes(NoSQLConstants.CitationColumns.IN_COUNT), Bytes.toBytes(numberOfIncomingCitations));
+		
+		// outgoing citations related
+		int numberOfOutgoingCitations = 0;
+		if (df.get_outCitations() != null) {
+			for (Map.Entry<Long, CitationFields> entry : df.get_outCitations().entrySet()) {
+				long id = entry.getValue().getId();
+				numberOfOutgoingCitations++;
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_ID, id), Bytes.toBytes(entry.getValue().getId()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_PAPER_ID, id), Bytes.toBytes(entry.getValue().getIdToPaper()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_DOI, id), Bytes.toBytes(entry.getValue().getDoiToPaper()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_MONTH, id), Bytes.toBytes(entry.getValue().getMonth()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_YEAR, id), Bytes.toBytes(entry.getValue().getYear()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_CONF_SCORE, id), Bytes.toBytes(entry.getValue().getConfidenceScore()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_CONF_LEVEL, id), Bytes.toBytes(entry.getValue().getConfidenceLevel()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_SOURCE, id), Bytes.toBytes(entry.getValue().getSource()));
+				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getDateImported()));
+			}
+		}
+		p.addImmutable(citationCFBytes, Bytes.toBytes(NoSQLConstants.CitationColumns.OUT_COUNT), Bytes.toBytes(numberOfOutgoingCitations));
+	}
+
+	public void writeEigenfactorFields(Put p, DenormalizedFields df) throws IOException {
+		byte[] efCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.EIGENFACTOR);
+		p.addImmutable(efCFBytes, Bytes.toBytes(NoSQLConstants.EFColumns.EF), Bytes.toBytes(df.get_eigenFactor()));
+	}
+	
+	public void writeVenueFields(Put p, DenormalizedFields df) throws IOException {
+		byte[] venueCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.VENUE);
+		
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.ID), Bytes.toBytes(df.get_venueId()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.ISO_ABRV), Bytes.toBytes(df.get_vIsoAbbreviation()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.TYPE), Bytes.toBytes(df.get_vType()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.TITLE), Bytes.toBytes(df.get_vTitle()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.TITLE_WD), Bytes.toBytes(df.get_vTitleWithoutDiacritics()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.START_YEAR), Bytes.toBytes(df.get_vYearStart()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.END_YEAR), Bytes.toBytes(df.get_vYearEnd()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.FREQUENCY), Bytes.toBytes(df.get_vFrequency()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.LANGUAGE), Bytes.toBytes(df.get_vLanguage()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.PUBLISHER), Bytes.toBytes(df.get_vPublisher()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.SOURCE), Bytes.toBytes(df.get_vSource()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.ISO_WD), Bytes.toBytes(df.get_vIsoWithoutDiacritic()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.EF_MEDIAN_RAW), Bytes.toBytes(df.get_vEFMedianRaw()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.EF_MEDIAN_NORMALIZED), Bytes.toBytes(df.get_vEFMedianNormalized()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.DATE_IMPORTED), Bytes.toBytes(df.get_vDateImported()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.MAPPING_SOURCE), Bytes.toBytes(df.get_vMapSource()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.CONFIDENCE_SCORE), Bytes.toBytes(df.get_vMapConfidenceScore()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.CONFIDENCE_LEVEL), Bytes.toBytes(df.get_vMapConfidenceLevel()));
+		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.MAPPING_DATE_IMPORTED), Bytes.toBytes(df.get_vMapDateImported()));
+	}
+	
+	public void writeAuthorFields(Put p, DenormalizedFields df) throws IOException {
+		byte[] authorCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.AUTHORS);
+		
+		if (df.get_authors() != null) {
+			for (Map.Entry<Long, AuthorFields> entry : df.get_authors().entrySet()) {
+				long id = entry.getValue().getId();
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.ID, id), Bytes.toBytes(entry.getValue().getId()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.NAME, id), Bytes.toBytes(entry.getValue().getName()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.HOMEPAGE, id), Bytes.toBytes(entry.getValue().getHomepage()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.SOURCE, id), Bytes.toBytes(entry.getValue().getAuthorSource()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getAuthorDateImported()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.ORCID_ID, id), Bytes.toBytes(entry.getValue().getOrcidId()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.INDEX, id), Bytes.toBytes(entry.getValue().getIndex()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.RAW_NAME, id), Bytes.toBytes(entry.getValue().getRawName()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.RAW_AFFILIATION, id), Bytes.toBytes(entry.getValue().getRawAffiliation()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.DISAMBIGUATION_SCORE, id), Bytes.toBytes(entry.getValue().getDisambiguationScore()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.MAPPING_SOURCE, id), Bytes.toBytes(entry.getValue().getMappingSource()));
+				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.MAPPING_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getMappingDateImported()));
+			}
+		}
+	}
+	
+	public void writeInstitutionFields(Put p, DenormalizedFields df) throws IOException {
+		byte[] instCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.INSTITUTION);
+		
+		if (df.get_institution() != null) {
+			for (Map.Entry<Long, InstitutionFields> entry : df.get_institution().entrySet()) {
+				long id = entry.getValue().getId();
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.ID, id), Bytes.toBytes(entry.getValue().getId()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.NAME, id), Bytes.toBytes(entry.getValue().getName()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.EXTERNAL_NAME, id), Bytes.toBytes(entry.getValue().getExternalName()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.CITY, id), Bytes.toBytes(entry.getValue().getCity()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.EXTERNAL_CITY, id), Bytes.toBytes(entry.getValue().getExternalCity()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.ZIPCODE, id), Bytes.toBytes(entry.getValue().getZipcode()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.COUNTRY, id), Bytes.toBytes(entry.getValue().getCountry()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.STATE, id), Bytes.toBytes(entry.getValue().getState()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.TYPE, id), Bytes.toBytes(entry.getValue().getType()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.ID_PARENT, id), Bytes.toBytes(entry.getValue().getIdParent()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.ID_PARENT_HIGHEST, id), Bytes.toBytes(entry.getValue().getIdParentHighest()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.EF, id), Bytes.toBytes(entry.getValue().getEigenfactor()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.SOURCE, id), Bytes.toBytes(entry.getValue().getInstitutionSource()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getInstitutionDateImported()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.AUTHOR_INDEX, id), Bytes.toBytes(entry.getValue().getAuthorIndex()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.INDEX_AFFILIATION, id), Bytes.toBytes(entry.getValue().getIndexAffiliation()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.PROTO_AFFILIATION, id), Bytes.toBytes(entry.getValue().getProtoAffiliation()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.SOLR_SCORE, id), Bytes.toBytes(entry.getValue().getSolrScore()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.CRF_SEGMENTATION, id), Bytes.toBytes(entry.getValue().getCrfSegmentation()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.CONFIDENCE_LEVEL, id), Bytes.toBytes(entry.getValue().getConfidenceLevel()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.MAPPING_SOURCE, id), Bytes.toBytes(entry.getValue().getMappingSource()));
+				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.MAPPING_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getMappingDateImported()));
+			}
+		}
+	}
+
+	public void writeConceptFields(Put p, DenormalizedFields df) throws IOException {
+		byte[] conceptCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.CONCEPT);
+		
+		if (df.get_concepts() != null) {
+			for (Map.Entry<Long, ConceptFields> entry : df.get_concepts().entrySet()) {
+				long id = entry.getValue().getId();
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.ID, id), Bytes.toBytes(entry.getValue().getId()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.ID_SOURCE, id), Bytes.toBytes(entry.getValue().getIdSource()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.NAME, id), Bytes.toBytes(entry.getValue().getName()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.IS_ACTIVE, id), Bytes.toBytes(entry.getValue().isActive()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.IS_GENERIC, id), Bytes.toBytes(entry.getValue().isGeneric()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.SPECIFICITY_SCORE, id), Bytes.toBytes(entry.getValue().getSpecificityScore()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.SOURCE, id), Bytes.toBytes(entry.getValue().getConceptSource()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getConceptDateImported()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.ID_RAW, id), Bytes.toBytes(entry.getValue().getIdConceptRaw()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.SOURCE_TYPE, id), Bytes.toBytes(entry.getValue().getConceptSourceType()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.MAPPING_SOURCE, id), Bytes.toBytes(entry.getValue().getMappingSource()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.ID_SECTION, id), Bytes.toBytes(entry.getValue().getIdSection()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.ID_SENTENCE, id), Bytes.toBytes(entry.getValue().getIdSentence()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.COUNT, id), Bytes.toBytes(entry.getValue().getCount()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.RAW_MENTION, id), Bytes.toBytes(entry.getValue().getRawMention()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.CONFIDENCE_SCORE, id), Bytes.toBytes(entry.getValue().getConfidenceScore()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.CONFIDENCE_LEVEL, id), Bytes.toBytes(entry.getValue().getConfidenceLevel()));
+				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.MAPPING_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getMappingDateImported()));
+				
+			}
+		}
+	}
+	
 	/**
 	 * Function to write {@link DenormalizedFields} to a HBase cluster.
 	 *
@@ -124,139 +307,19 @@ public class HbaseHandler {
 		}
 		// User paper ID as key
 		//Put p = new Put(Bytes.toBytes(df.get_id()));	// store key as byte[]
+		/**
+		 * Note : Storing key as Strings so that it is easy to use HBase shell
+		 */
 		Put p = new Put(Bytes.toBytes(String.valueOf(df.get_id())));
-		// add pmid
-		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.PMID), Bytes.toBytes(NoSQLConstants.Columns.ID), Bytes.toBytes(df.get_pmId()));
-		// add DOI
-		if (df.get_doi() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DOI), Bytes.toBytes(NoSQLConstants.Columns.ID), Bytes.toBytes(df.get_doi()));
-		}
-		// add title
-		if (df.get_title() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.TITLE), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_title()));
-		}
-		// add pubmed release date
-		if (df.get_datePmReleased() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE_PM_RELEASED), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_datePmReleased()));
-		}
-		// add issn
-		if (df.get_issn() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.ISSN), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_issn()));
-		}
-		// add date
-		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE), Bytes.toBytes(NoSQLConstants.Columns.YEAR), Bytes.toBytes(df.get_year()));
-		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE), Bytes.toBytes(NoSQLConstants.Columns.MONTH), Bytes.toBytes(df.get_month()));
-		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE), Bytes.toBytes(NoSQLConstants.Columns.DAY), Bytes.toBytes(df.get_day()));
-		// add iso
-		if (df.get_iso() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.ISO), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_iso()));
-		}
-		// add issue
-		if (df.get_issue() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.ISSUE), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_issue()));
-		}
-		// add language
-		if (df.get_language() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.LANGUAGE), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_language()));
-		}
-		// add type
-		if (df.get_type() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.TYPE), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_type()));
-		}
-		// journal info
-		if (df.get_journalName() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.JOURNAL), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_journalName()));
-		}
-		// add eigenfactor
-		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.EIGENFACTOR), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_eigenFactor()));
-		// add country
-		if (df.get_country() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.LOCATION), Bytes.toBytes(NoSQLConstants.Columns.COUNTRY), Bytes.toBytes(df.get_country()));
-		}
-		// add volume
-		if (df.get_volume() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.VOULME), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_volume()));
-		}
-		// add nlm
-		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.NLM), Bytes.toBytes(NoSQLConstants.Columns.ID), Bytes.toBytes(df.get_nlmId()));
-		// add metadata-info
-		if (df.get_metadataSource() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.MD), Bytes.toBytes(NoSQLConstants.Columns.SOURCE), Bytes.toBytes(df.get_metadataSource()));
-		}
-		// add venue info
-		p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.VENUE), Bytes.toBytes(NoSQLConstants.Columns.ID), Bytes.toBytes(df.get_venueId()));
-		if (df.get_publisher() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.VENUE), Bytes.toBytes(NoSQLConstants.Columns.PUBLISHER), Bytes.toBytes(df.get_publisher()));
-		}
-		// add authors
-		if (df.get_authors() != null) {
-			for (Map.Entry<Long, AuthorFields> entry : df.get_authors().entrySet()) {
-				String authorNameCol = buildAuthorNameColumnName(entry.getKey());
-				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.AUTHORS),
-						Bytes.toBytes(authorNameCol), Bytes.toBytes(entry.getValue().getName()));
-			}
-		}
-		// add institutions
-		if (df.get_institution() != null) {
-			for (Map.Entry<Long, InstitutionFields> entry : df.get_institution().entrySet()) {
-				String rawAffColName = buildRawAffColumnName(entry.getKey());
-				String normAffColName = buildNormAffColumnName(entry.getKey());
-				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.INSTITUTION),
-						Bytes.toBytes(rawAffColName), Bytes.toBytes(entry.getValue().getRawAffiliationName()));
-				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.INSTITUTION),
-						Bytes.toBytes(normAffColName), Bytes.toBytes(entry.getValue().getNormalizedAffiliationName()));
-			}
-		}
-		// add abstract
-		if (df.get_abstract() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.ABTSRACT), Bytes.toBytes(NoSQLConstants.Columns.VALUE), Bytes.toBytes(df.get_abstract()));
-		}
-		// add sections
-		if (df.get_sections() != null) {
-			for (int i = 0; i < df.get_sections().length; ++i) {
-				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.SECTIONS), Bytes.toBytes(i), Bytes.toBytes(df.get_sections()[i]));
-			}
-		}
-		// add fields
-		if (df.get_fields() != null) {
-			for (Map.Entry<Long, FieldsFields> entry : df.get_fields().entrySet()) {
-				String fieldNameCol = buildFieldsNameColumnName(entry.getKey());
-				p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.FIELDS),
-						Bytes.toBytes(fieldNameCol), Bytes.toBytes(entry.getValue().getName()));
-			}
-		}
-		// add import info
-		if (df.get_dateImported() != null) {
-			p.add(Bytes.toBytes(NoSQLConstants.ColumnFamilies.IMPORT_INFO), Bytes.toBytes(NoSQLConstants.ColumnKeyWords.IMPORT_DATE), Bytes.toBytes(df.get_dateImported()));
-		}
+	
 		/* finally put in the table */
 		table.put(p);
 	}
 
-	public String buildAuthorNameColumnName(long id) {
+	public byte[] buildFieldWithId(String field, long id) {
 		StringBuilder colName = new StringBuilder();
-		colName.append(NoSQLConstants.ColumnKeyWords.AUTHOR_NAME);
+		colName.append(field);
 		colName.append(id);
-		return (colName.toString());
-	}
-
-	public String buildRawAffColumnName(long id) {
-		StringBuilder colName = new StringBuilder();
-		colName.append(NoSQLConstants.ColumnKeyWords.RAW_AFFILIATION);
-		colName.append(id);
-		return (colName.toString());
-	}
-	public String buildNormAffColumnName(long id) {
-		StringBuilder colName = new StringBuilder();
-		colName.append(NoSQLConstants.ColumnKeyWords.NORM_AFFILIATION);
-		colName.append(id);
-		return (colName.toString());
-	}
-
-	public String buildFieldsNameColumnName(long id) {
-		StringBuilder colName = new StringBuilder();
-		colName.append(NoSQLConstants.ColumnKeyWords.FIELD_NAME);
-		colName.append(id);
-		return (colName.toString());
+		return (Bytes.toBytes(colName.toString()));
 	}
 }

@@ -21,8 +21,10 @@ public class DataRecordProducer implements Runnable {
 	private ResultSet venueSet;
 	private ResultSet authorSet;
 	private ResultSet instituteSet;
-	private ResultSet fieldSet;
-
+	private ResultSet conceptSet;
+	private ResultSet inCitationSet;
+	private ResultSet outCitationSet;
+	
 	public DataRecordProducer(final BlockingQueue<DenormalizedFields> queue,
 			final MySQLHandler mysql, final int publicationYear)
 					throws CoreDBOpException {
@@ -42,7 +44,9 @@ public class DataRecordProducer implements Runnable {
 		venueSet = null;
 		authorSet = null;
 		instituteSet = null;
-		fieldSet = null;
+		conceptSet = null;
+		inCitationSet = null;
+		outCitationSet = null;
 	}
 
 	public void fetchAndPushDenormalizedFields(int publicationYear)
@@ -59,12 +63,10 @@ public class DataRecordProducer implements Runnable {
 				DenormalizedFields denormFields = new DenormalizedFields();
 				// get paper id
 				String paperId = paperSet.getString(CoreDBConstants.PaperFields.ID);
-				// get venue id
-				String venueId = paperSet.getString(CoreDBConstants.PaperFields.VENUE_ID);
 				// populate the DenormalizedFields object with paper fields
 				denormFields.populatePaperFields(paperSet);
 				// get venue info for this venueId
-				venueSet = coreOps.getVenueFields(venueId);
+				venueSet = coreOps.getVenueFields(paperId);
 				// populate the DenormalizedFields object with venue fields
 				denormFields.populateVenueFields(venueSet);
 				// get author info for this paper
@@ -77,12 +79,22 @@ public class DataRecordProducer implements Runnable {
 				denormFields.populateInstituteFields(instituteSet);
 				// populate sections (NOTE: should be filled by FT pipeline)
 				//denormFields.populateFullTextSections(6, 300);
-				// get fields for this paper
-				fieldSet = coreOps.getFields(paperId);
-				// populate the DenormalizedFields object with fields
-				denormFields.populateFieldsFields(fieldSet);
+				// get concepts for this paper
+				conceptSet = coreOps.getConcepts(paperId);
+				// populate the DenormalizedFields object with concepts
+				denormFields.populateConceptFields(conceptSet);
+				// get incoming citations for this paper
+				inCitationSet = coreOps.getInCitations(paperId);
+				// populate the DenormalizedFields object with incoming citation
+				denormFields.populateInCitationFields(inCitationSet);
+				// get incoming citations for this paper
+				outCitationSet = coreOps.getOutCitations(paperId);
+				// populate the DenormalizedFields object with incoming citation
+				denormFields.populateOutCitationFields(outCitationSet);
+				
 				// TODO: remove later .. print the fields (for sanity)
 				//denormFields.printFields(System.out);
+				
 				// push the de-normalized field object to blocking queue
 				try {
 					queue.put(denormFields);
@@ -118,7 +130,7 @@ public class DataRecordProducer implements Runnable {
 			venueSet.close();
 			authorSet.close();
 			instituteSet.close();
-			fieldSet.close();
+			conceptSet.close();
 			paperSet.close();
 		} catch (SQLException e) {
 			throw new CoreDBOpException(e.getMessage());

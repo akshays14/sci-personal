@@ -20,7 +20,6 @@ public class CoreDBOperations {
 	private long _totalRecordsProcessed;
 
 	public CoreDBOperations(MySQLHandler my) throws MySQLProviderException {
-		super();
 		if (my == null) {
 			throw new MySQLProviderException(
 					DBMSConstants.MySQLHandlerOperations.
@@ -68,9 +67,9 @@ public class CoreDBOperations {
 				// populate sections (NOTE: should be populated by FT pipeline)
 				//denormFields.populateFullTextSections(6, 300);
 				// get fields for this paper
-				fieldSet = getFields(paperId);
+				fieldSet = getConcepts(paperId);
 				// populate the DenormalizedFields object with fields
-				denormFields.populateFieldsFields(fieldSet);
+				denormFields.populateConceptFields(fieldSet);
 				// TODO: remove later .. print the fields (for sanity)
 				//denormFields.printFields(System.out);
 				// at last add it to the list
@@ -259,11 +258,12 @@ public class CoreDBOperations {
 		ResultSet resultSet = null;
 
 		//Create SQL statement
-		// select publisher from venue, paper_to_venue where venue.id = paper_to_venue.id_venue and paper_to_venue.id_paper = 2;
+		// select publisher from venue, paper_to_venue where venue.id =
+		// paper_to_venue.id_venue and paper_to_venue.id_paper = 2;
 
 		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.VenueFields.PUBLISHER);
+		strBuff.append(DBMSConstants.MySQLKeyWords.ALL);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
@@ -314,19 +314,13 @@ public class CoreDBOperations {
 		ResultSet resultSet = null;
 
 		//Create SQL statement
-		/* select paper_to_author.id_author, author.name
+		/* select *
 		 * from paper_to_author INNER JOIN author
 		 * ON paper_to_author.id_author = author.id
 		 * where paper_to_author.id_paper=1033; */
 		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.Tables.PAPER_TO_AUTHOR);
-		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.PaperToAuthorFields.AUTHOR_ID);
-		strBuff.append(DBMSConstants.MySQLKeyWords.COMMA);
-		strBuff.append(CoreDBConstants.Tables.AUTHOR);
-		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.AuthorFields.NAME);
+		strBuff.append(DBMSConstants.MySQLKeyWords.ALL);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
@@ -369,23 +363,14 @@ public class CoreDBOperations {
 		ResultSet resultSet = null;
 
 		//Create SQL statement
-		/* select paper_to_institution.proto_affiliation, paper_to_institution.id_institution, institution.name
-		 * from paper_to_institution INNER JOIN institution
-		 * ON paper_to_institution.id_institution = institution.id
-		 * where paper_to_institution.id_paper = 8560263; */
+		/*
+		 * select * from paper_to_institution INNER JOIN institution ON
+		 * paper_to_institution.id_institution = institution.id where
+		 * paper_to_institution.id_paper = 8560263;
+		 */
 		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.Tables.PAPER_TO_INSTITUTION);
-		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.PaperToInstitutionFields.AFFILIATION_PROTO);
-		strBuff.append(DBMSConstants.MySQLKeyWords.COMMA);
-		strBuff.append(CoreDBConstants.Tables.PAPER_TO_INSTITUTION);
-		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.PaperToInstitutionFields.INSITUTION_ID);
-		strBuff.append(DBMSConstants.MySQLKeyWords.COMMA);
-		strBuff.append(CoreDBConstants.Tables.INSTITUTION);
-		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.InstitutionFields.NAME);
+		strBuff.append(DBMSConstants.MySQLKeyWords.ALL);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
@@ -420,7 +405,7 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	ResultSet getFields(String pmId) throws MySQLProviderException {
+	ResultSet getConcepts(String pmId) throws MySQLProviderException {
 		if (pmId == null) {
 			throw new MySQLProviderException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
 		}
@@ -430,30 +415,108 @@ public class CoreDBOperations {
 
 		//Create SQL statement
 		/*
-		 * select id_field, field_name from paper_to_field where id_paper = pmid
+		 * select * from paper_to_concept INNER JOIN concept
+		 * ON concept.id = paper_to_concept.id_concept
+		 * where paper_to_concept.id_paper = 8560263\G
 		 */
 		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.PaperToFieldFields.FIELD_ID);
-		strBuff.append(DBMSConstants.MySQLKeyWords.COMMA);
-		strBuff.append(CoreDBConstants.PaperToFieldFields.FIELD_NAME);
+		strBuff.append(DBMSConstants.MySQLKeyWords.ALL);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.Tables.PAPER_TO_FIELD);
+		strBuff.append(CoreDBConstants.Tables.PAPER_TO_CONCEPT);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.INNER_JOIN);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.Tables.CONCEPT);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.ON);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.Tables.PAPER_TO_CONCEPT);
+		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
+		strBuff.append(CoreDBConstants.PaperToConceptFields.ID_CONCEPT_RAW);
+		strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
+		strBuff.append(CoreDBConstants.Tables.CONCEPT);
+		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
+		strBuff.append(CoreDBConstants.ConceptFields.ID);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.WHERE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.PaperToFieldFields.PAPER_ID);
+		strBuff.append(CoreDBConstants.Tables.CONCEPT);
+		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
+		strBuff.append(CoreDBConstants.ConceptFields.ID);
 		strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
 		strBuff.append(pmId);
-
+		
 		query = strBuff.toString();
 		logger.info("Query issued {}", query);
 		//System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		return (resultSet);
 	}
+
+	ResultSet getInCitations(String pmId) throws MySQLProviderException {
+		if (pmId == null) {
+			throw new MySQLProviderException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
+		}
+		Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
+		String query = null;
+		ResultSet resultSet = null;
+
+		//Create SQL statement
+		/* select * from citation where id_from_paper = 2439601\G */
+		StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.ALL);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.Tables.CITATION);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.WHERE);
+		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+		strBuff.append(CoreDBConstants.CitationFields.ID_TO_PAPER);
+		strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
+		strBuff.append(pmId);
+		
+		query = strBuff.toString();
+		logger.info("Query issued {}", query);
+		//System.err.println(query);
+		resultSet = _my.executeQuery(query);
+		return (resultSet);
+	}
+
+	ResultSet getOutCitations(String pmId) throws MySQLProviderException {
+			if (pmId == null) {
+				throw new MySQLProviderException(DBMSConstants.MySQLHandlerOperations.PMID_NULL_MESSAGE);
+			}
+			Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
+			String query = null;
+			ResultSet resultSet = null;
+
+			//Create SQL statement
+			/* select * from citation where id_to_paper = 2439601\G */
+			StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
+			strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+			strBuff.append(DBMSConstants.MySQLKeyWords.ALL);
+			strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+			strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
+			strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+			strBuff.append(CoreDBConstants.Tables.CITATION);
+			strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+			strBuff.append(DBMSConstants.MySQLKeyWords.WHERE);
+			strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+			strBuff.append(CoreDBConstants.CitationFields.ID_FROM_PAPER);
+			strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
+			strBuff.append(pmId);
+			
+			query = strBuff.toString();
+			logger.info("Query issued {}", query);
+			//System.err.println(query);
+			resultSet = _my.executeQuery(query);
+			return (resultSet);
+		}
 
 	void showProgress(String paperId) {
 		if (Integer.parseInt(paperId)%1000 == 0) {
