@@ -28,5 +28,12 @@ for i in {<START-YEAR>..<END-YEAR>}; do java -Xmx48g -cp ./target/UnnormalizeCor
 For example:
 for i in {2013..2013}; do java -Xmx48g -cp ./target/UnnormalizeCoreDB-1.0-SNAPSHOT.jar:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hbase/*:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hbase/lib/*:/opt/cloudera/parcels/CDH-5.2.0-1.cdh5.2.0.p0.36/lib/hadoop/*:/home/akshay/.m2/repository/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar main.java.com.sciencescape.ds.db.transfer.DataTransfer $i; done
 
-Running from command line:
-mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -Dexec.args="-t test -y 2029"
+
+For version 2
++++++++++++++
+
+1) Create table
+create 'paper_v2_dev', 'ID', 'P', 'D', 'CI', 'EF', 'V', 'A', 'I', 'CO'
+
+2) Running from command line:
+mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -Dexec.args="--help"

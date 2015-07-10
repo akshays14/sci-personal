@@ -126,7 +126,7 @@ public final class DataTransfer {
 		try {
 			dataTransfer = new DataTransfer(args);
 		} catch (IllegalArgumentException e) {
-			logger.error("Unexpected arguments to the program", e);
+			logger.error("Unexpected arguments to the program");
 			System.exit(1);
 		}
 		/*
