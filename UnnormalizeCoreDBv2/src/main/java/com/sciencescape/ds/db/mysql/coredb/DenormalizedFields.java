@@ -355,17 +355,6 @@ public class DenormalizedFields {
 			throw new CoreDBOpException(e.getMessage());
 		}
 	}
-
-/*	public void populateFullTextSections(int numOfSection, int lengthOfSection)
-			throws CoreDBOpException {
-		String[] sections = new String[numOfSection];
-		RandomText random = new RandomText();
-		for (int i = 0; i < numOfSection; ++i) {
-			sections[i] = random.generateText(lengthOfSection);
-		}
-		_sections = sections;
-	}
-*/
 	
 	public void populateConceptFields(ResultSet rs) throws CoreDBOpException {
 		if (rs == null) {

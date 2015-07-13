@@ -126,9 +126,11 @@ public final class DataTransfer {
 		try {
 			dataTransfer = new DataTransfer(args);
 		} catch (IllegalArgumentException e) {
-			logger.error("Unexpected arguments to the program");
+			logger.error("Unexpected arguments/environment-variables "
+					+ "to the program", e);
 			System.exit(1);
 		}
+		
 		/*
 		 * create necessary objects
 		 */

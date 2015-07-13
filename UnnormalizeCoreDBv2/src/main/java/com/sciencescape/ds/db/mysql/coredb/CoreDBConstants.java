@@ -276,7 +276,7 @@ public class CoreDBConstants {
 	 * our development DB.
 	 */
 	public static class DBServer {
-		public static final String DEV_DB_SLAVE_SERVER = "dev2";
+		public static final String DEV_DB_SLAVE_SERVER = "ds-db3.scivulcan.com";
 		public static final int DB_PORT = 3306;
 		public static final String DEV_DB_USER = "ds_agent";
 		public static final String DEV_DB_PASSWORD = "86753098675309";
