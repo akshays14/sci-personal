@@ -35,7 +35,7 @@ public class DenormalizedFields {
 	private float _eigenFactor;
 	private String _country;
 	private String _volume;
-	private long _nlmId;
+	private String _nlmId;
 	private String _meshTerms;
 	private String _keywords;
 	private String _conceptsRaw;
@@ -201,7 +201,7 @@ public class DenormalizedFields {
 			// not doing 'authors_raw'
 			_journalName = rs
 						.getString(CoreDBConstants.PaperFields.JOURNAL_NAME);
-			_nlmId = rs.getLong(CoreDBConstants.PaperFields.NLM_ID);
+			_nlmId = rs.getString(CoreDBConstants.PaperFields.NLM_ID);
 			_meshTerms =
 					rs.getString(CoreDBConstants.PaperFields.MESH_TERMS_RAW);
 			_keywords = rs.getString(CoreDBConstants.PaperFields.KEYWORDS);
@@ -697,20 +697,6 @@ public class DenormalizedFields {
 	 */
 	public final void set_volume(String _volume) {
 		this._volume = _volume;
-	}
-
-	/**
-	 * @return the _nlmId
-	 */
-	public final long get_nlmId() {
-		return _nlmId;
-	}
-
-	/**
-	 * @param _nlmId the _nlmId to set
-	 */
-	public final void set_nlmId(long _nlmId) {
-		this._nlmId = _nlmId;
 	}
 
 	/**
@@ -1229,5 +1215,19 @@ public class DenormalizedFields {
 	 */
 	public final void set_concepts(Map<Long, ConceptFields> _concepts) {
 		this._concepts = _concepts;
+	}
+
+	/**
+	 * @return the _nlmId
+	 */
+	public final String get_nlmId() {
+		return _nlmId;
+	}
+
+	/**
+	 * @param _nlmId the _nlmId to set
+	 */
+	public final void set_nlmId(String _nlmId) {
+		this._nlmId = _nlmId;
 	}
 }
