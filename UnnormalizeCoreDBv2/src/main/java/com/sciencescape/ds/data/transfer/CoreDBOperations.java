@@ -435,7 +435,7 @@ public class CoreDBOperations {
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(CoreDBConstants.Tables.PAPER_TO_CONCEPT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.PaperToConceptFields.ID_CONCEPT_RAW);
+		strBuff.append(CoreDBConstants.PaperToConceptFields.ID_CONCEPT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
 		strBuff.append(CoreDBConstants.Tables.CONCEPT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
@@ -443,9 +443,9 @@ public class CoreDBOperations {
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.WHERE);
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
-		strBuff.append(CoreDBConstants.Tables.CONCEPT);
+		strBuff.append(CoreDBConstants.Tables.PAPER_TO_CONCEPT);
 		strBuff.append(DBMSConstants.MySQLKeyWords.DOT);
-		strBuff.append(CoreDBConstants.ConceptFields.ID);
+		strBuff.append(CoreDBConstants.PaperToConceptFields.ID_PAPER);
 		strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
 		strBuff.append(pmId);
 		

@@ -197,6 +197,8 @@ public class CoreDBConstants {
 	public static class PaperToConceptFields {
 		
 		public static final String ID_CONCEPT_RAW = "id_concept_raw";
+		public static final String ID_CONCEPT = "id_concept";
+		public static final String ID_PAPER = "id_paper";
 		public static final String CONCEPT_SOURCE_TYPE = "concept_source_type";
 		public static final String MAPPING_SOURCE = "paper_to_concept.source";
 		public static final String ID_SECTION = "id_section";

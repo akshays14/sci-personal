@@ -172,4 +172,8 @@ public class NoSQLConstants {
 		public static final String CONFIDENCE_LEVEL = "conf_lvl_";
 		public static final String MAPPING_DATE_IMPORTED = "map_d_imp_";
 	}
+	
+	public static class KeyDesign {
+		public static final String KEY_DEMILITER = "_";
+	}
 }

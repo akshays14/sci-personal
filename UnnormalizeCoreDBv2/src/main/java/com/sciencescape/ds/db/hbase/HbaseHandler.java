@@ -317,7 +317,8 @@ public class HbaseHandler {
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.SOURCE, id), Bytes.toBytes(entry.getValue().getInstitutionSource()));
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getInstitutionDateImported()));
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.AUTHOR_INDEX, id), Bytes.toBytes(entry.getValue().getAuthorIndex()));
-				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.INDEX_AFFILIATION, id), Bytes.toBytes(entry.getValue().getIndexAffiliation()));
+				//p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.INDEX_AFFILIATION, id), Bytes.toBytes(entry.getValue().getIndexAffiliation()));
+				p.addImmutable(instCFBytes, buildFieldWithIdAndValue(NoSQLConstants.InstitutionColumns.INDEX_AFFILIATION, entry.getValue().getIndexAffiliation(), id), Bytes.toBytes(entry.getValue().getIndexAffiliation()));
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.PROTO_AFFILIATION, id), Bytes.toBytes(entry.getValue().getProtoAffiliation()));
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.SOLR_SCORE, id), Bytes.toBytes(entry.getValue().getSolrScore()));
 				if (entry.getValue().getCrfSegmentation() != null) {
@@ -404,6 +405,15 @@ public class HbaseHandler {
 	public byte[] buildFieldWithId(String field, long id) {
 		StringBuilder colName = new StringBuilder();
 		colName.append(field);
+		colName.append(id);
+		return (Bytes.toBytes(colName.toString()));
+	}
+	
+	public byte[] buildFieldWithIdAndValue(String field, int value, long id) {
+		StringBuilder colName = new StringBuilder();
+		colName.append(field);
+		colName.append(value);
+		colName.append(NoSQLConstants.KeyDesign.KEY_DEMILITER);
 		colName.append(id);
 		return (Bytes.toBytes(colName.toString()));
 	}
