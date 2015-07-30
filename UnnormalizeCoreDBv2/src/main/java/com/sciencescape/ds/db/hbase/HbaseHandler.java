@@ -89,6 +89,7 @@ public class HbaseHandler {
 		}
 		// creates hbase table object
 		this.table = new HTable(this.config, this.tableName);
+		this.table.setAutoFlushTo(false);
 	}
 
 	/**
