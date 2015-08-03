@@ -108,7 +108,7 @@ public class CoreDBOperations {
 		strBuff.append(numOfRecords);
 
 		query = strBuff.toString();
-		logger.info("Query issued {}", query);
+		logger.debug("Query issued {}", query);
 		System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		return (resultSet);
@@ -142,7 +142,7 @@ public class CoreDBOperations {
 		strBuff.append(endPaperId);
 
 		query = strBuff.toString();
-		logger.info("Query issued {}", query);
+		logger.debug("Query issued {}", query);
 		//System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		return (resultSet);
@@ -178,7 +178,7 @@ public class CoreDBOperations {
 
 		query = strBuff.toString();
 		System.out.format("Query issued %s%n", query);
-		logger.info("Query issued {}", query);
+		logger.debug("Query issued {}", query);
 		//System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		return (resultSet);
@@ -208,10 +208,66 @@ public class CoreDBOperations {
 
 		query = strBuff.toString();
 		System.out.format("Query issued: %s%n", query);
-		logger.info("Query issued: {}", query);
+		logger.debug("Query issued: {}", query);
 		//System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		return (resultSet);
+	}
+
+	ResultSet getPaperFieldsByPubDate(int publicationYear, 
+	        int publicationMonth, int publicationDay) 
+	                throws MySQLProviderException {
+	    Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
+	    String query = null;
+	    ResultSet resultSet = null;
+
+	    //Create SQL statement
+	    StringBuilder strBuff = new StringBuilder(DBMSConstants.MySQLKeyWords.SELECT);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.ALL);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.FROM);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	    strBuff.append(CoreDBConstants.Tables.PAPER);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.WHERE);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	    strBuff.append(CoreDBConstants.PaperFields.YEAR);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
+	    strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	    strBuff.append(publicationYear);
+	    
+	    // add month clause only if it is greater than zero
+	    if (publicationMonth > 0) {
+	        strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	        strBuff.append(DBMSConstants.MySQLKeyWords.AND);
+	        strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	        strBuff.append(CoreDBConstants.PaperFields.MONTH);
+	        strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	        strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
+	        strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	        strBuff.append(publicationMonth);
+
+	        // add day clause only if day and month is greater than zero
+	        if (publicationDay > 0) {
+	            strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	            strBuff.append(DBMSConstants.MySQLKeyWords.AND);
+	            strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	            strBuff.append(CoreDBConstants.PaperFields.DAY);
+	            strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	            strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
+	            strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+	            strBuff.append(publicationDay);           
+	        }
+	    }
+
+	    query = strBuff.toString();
+	    System.out.format("Query issued: %s%n", query);
+	    logger.debug("Query issued: {}", query);
+	    //System.err.println(query);
+	    resultSet = _my.executeQuery(query);
+	    return (resultSet);
 	}
 
 	ResultSet getPaperFields(String pmId) throws MySQLProviderException {
@@ -238,7 +294,7 @@ public class CoreDBOperations {
 		strBuff.append(pmId);
 
 		query = strBuff.toString();
-		logger.info("Query issued {}", query);
+		logger.debug("Query issued {}", query);
 		resultSet = _my.executeQuery(query);
 		/* check if there is only one record in the response */
 		try {
@@ -293,7 +349,7 @@ public class CoreDBOperations {
 		strBuff.append(paperId);
 
 		query = strBuff.toString();
-		logger.info("Query issued {}", query);
+		logger.debug("Query issued {}", query);
 		//System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		/* check if there is only one record in the response */
@@ -348,7 +404,7 @@ public class CoreDBOperations {
 		strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
 		strBuff.append(pmId);
 		query = strBuff.toString();
-		logger.info("Query issued {}", query);
+		logger.debug("Query issued {}", query);
 		//System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		return (resultSet);
@@ -399,7 +455,7 @@ public class CoreDBOperations {
 		strBuff.append(pmId);
 
 		query = strBuff.toString();
-		logger.info("Query issued {}", query);
+		logger.debug("Query issued {}", query);
 		//System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		return (resultSet);
@@ -450,7 +506,7 @@ public class CoreDBOperations {
 		strBuff.append(pmId);
 		
 		query = strBuff.toString();
-		logger.info("Query issued {}", query);
+		logger.debug("Query issued {}", query);
 		//System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		return (resultSet);
@@ -481,7 +537,7 @@ public class CoreDBOperations {
 		strBuff.append(pmId);
 		
 		query = strBuff.toString();
-		logger.info("Query issued {}", query);
+		logger.debug("Query issued {}", query);
 		//System.err.println(query);
 		resultSet = _my.executeQuery(query);
 		return (resultSet);
@@ -512,7 +568,7 @@ public class CoreDBOperations {
 			strBuff.append(pmId);
 			
 			query = strBuff.toString();
-			logger.info("Query issued {}", query);
+			logger.debug("Query issued {}", query);
 			//System.err.println(query);
 			resultSet = _my.executeQuery(query);
 			return (resultSet);

@@ -16,6 +16,8 @@ public class DataRecordProducer implements Runnable {
 	private CoreDBOperations coreOps;
 	private long recordsProcessed;
 	private int publicationYear;
+	private int publicationMonth;
+	private int publicationDay;
 	// ResultSet object
 	private ResultSet paperSet;
 	private ResultSet venueSet;
@@ -26,13 +28,16 @@ public class DataRecordProducer implements Runnable {
 	private ResultSet outCitationSet;
 	
 	public DataRecordProducer(final BlockingQueue<DenormalizedFields> queue,
-			final MySQLHandler mysql, final int publicationYear)
+			final MySQLHandler mysql, final int publicationYear, 
+			final int publicationMonth, final int publicationDay)
 					throws CoreDBOpException {
 		if (queue == null) {
 			throw new CoreDBOpException("Given queue object is null");
 		}
 		this.queue = queue;
 		this.publicationYear = publicationYear;
+		this.publicationMonth = publicationMonth;
+		this.publicationDay = publicationDay;
 		try {
 			this.coreOps = new CoreDBOperations(mysql);
 		} catch (MySQLProviderException e) {

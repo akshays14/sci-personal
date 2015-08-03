@@ -42,9 +42,36 @@ public class Constants {
 		public static final String PAPER_PUBLICATION_YEAR_OPT_DESCRIPTION =
 				"Calendar year in which papers (to be imported) were "
 				+ "published ";
-		/**!< Output hbase table argument (for reading) */
-		public static final String PAPER_PUBLICATION_ARG =
+		/**!< Paper publication year argument */
+		public static final String PAPER_PUBLICATION_YEAR_ARG =
 				"yearOfPaperPublication";
+		
+		/**!< Paper publication month short option */
+        public static final String PAPER_PUBLICATION_MONTH_OPT_SHORT = "-m";
+        /**!< Paper publication month long option */
+        public static final String PAPER_PUBLICATION_MONTH_OPT_LONG =
+                "--monthOfPaperPublication";
+        /**!< Paper publication month option description  */
+        public static final String PAPER_PUBLICATION_MONTH_OPT_DESCRIPTION =
+                "Calendar month in which papers (to be imported) were "
+                + "published ";
+        /**!< Paper publication month argument */
+        public static final String PAPER_PUBLICATION_MONTH_ARG =
+                "monthOfPaperPublication";
+        
+        /**!< Paper publication day short option */
+        public static final String PAPER_PUBLICATION_DAY_OPT_SHORT = "-d";
+        /**!< Paper publication day long option */
+        public static final String PAPER_PUBLICATION_DAY_OPT_LONG =
+                "--dayOfPaperPublication";
+        /**!< Paper publication day option description  */
+        public static final String PAPER_PUBLICATION_DAY_OPT_DESCRIPTION =
+                "Calendar day in which papers (to be imported) were "
+                + "published ";
+        /**!< Paper publication day argument */
+        public static final String PAPER_PUBLICATION_DAY_ARG =
+                "dayOfPaperPublication";
+
 	}
 	
 	/**

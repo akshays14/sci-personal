@@ -36,6 +36,10 @@ public final class DataTransfer {
 	private String hbaseTable;
 	/**!< target publication year */
 	private String targetYear;
+    /**!< target publication month */
+    private String targetMonth;
+    /**!< target publication day */
+    private String targetDay;
 	/**!< deployment environment */
 	private String deploymentEnvironment;
 	/**!< source directory */
@@ -51,18 +55,28 @@ public final class DataTransfer {
 	 */
 	public DataTransfer(final String[] args) {
 		/* specify expected command line arguments */
-		ArgumentParser parser = ArgumentParsers
-				.newArgumentParser(Constants.CLA.PROGRAM_NAME)
-				.defaultHelp(true)
-				.description(Constants.CLA.PROGRAM_DESCRIPTION);
-		// output hbase table
-		parser.addArgument(Constants.CLA.OUTPUT_TABLE_OPT_SHORT,
-				Constants.CLA.OUTPUT_TABLE_OPT_LONG).required(true)
-				.help(Constants.CLA.OUTPUT_TABLE_OPT_DESCRIPTION);
-		// target year
-		parser.addArgument(Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_SHORT,
-				Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_LONG)
-				.help(Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_DESCRIPTION);
+	    ArgumentParser parser = ArgumentParsers
+	            .newArgumentParser(Constants.CLA.PROGRAM_NAME)
+	            .defaultHelp(true)
+	            .description(Constants.CLA.PROGRAM_DESCRIPTION);
+	    // output hbase table
+	    parser.addArgument(Constants.CLA.OUTPUT_TABLE_OPT_SHORT,
+	            Constants.CLA.OUTPUT_TABLE_OPT_LONG).required(true)
+	    .help(Constants.CLA.OUTPUT_TABLE_OPT_DESCRIPTION);
+	    // target year
+	    parser.addArgument(Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_SHORT,
+	            Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_LONG).required(true)
+	    .help(Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_DESCRIPTION);
+
+	    // target month
+	    parser.addArgument(Constants.CLA.PAPER_PUBLICATION_MONTH_OPT_SHORT,
+	            Constants.CLA.PAPER_PUBLICATION_MONTH_OPT_LONG)
+	    .help(Constants.CLA.PAPER_PUBLICATION_MONTH_OPT_DESCRIPTION);
+
+	    // target day
+	    parser.addArgument(Constants.CLA.PAPER_PUBLICATION_DAY_OPT_SHORT,
+	            Constants.CLA.PAPER_PUBLICATION_DAY_OPT_LONG)
+	    .help(Constants.CLA.PAPER_PUBLICATION_DAY_OPT_DESCRIPTION);
 
 		// parse the arguments
 		Namespace ns = null;
@@ -82,12 +96,20 @@ public final class DataTransfer {
 		logger.info("Output HBase Table : {}.", hbaseTable);
 
 		// set the target number of year
-		targetYear = ns.getString(Constants.CLA.PAPER_PUBLICATION_ARG);
+		targetYear = ns.getString(Constants.CLA.PAPER_PUBLICATION_YEAR_ARG);
 		if (targetYear == null) {
 			throw (new IllegalArgumentException(
 					"Target year of publicatoin table must be specified"));
 		}
 		logger.info("Target year of publication : {}.", targetYear);
+
+	    // set the target number of month
+        targetMonth = ns.getString(Constants.CLA.PAPER_PUBLICATION_MONTH_ARG);
+        logger.info("Target month of publication : {}.", targetMonth);
+
+        // set the target number of day
+        targetYear = ns.getString(Constants.CLA.PAPER_PUBLICATION_DAY_ARG);
+        logger.info("Target day of publication : {}.", targetDay);
 
 		// read the environment variables
 		this.readEnvironmentVariables();
