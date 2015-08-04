@@ -15,9 +15,9 @@ public class DataRecordProducer implements Runnable {
 	private BlockingQueue<DenormalizedFields> queue;
 	private CoreDBOperations coreOps;
 	private long recordsProcessed;
-	private int publicationYear;
-	private int publicationMonth;
-	private int publicationDay;
+	private Integer publicationYear;
+	private Integer publicationMonth;
+	private Integer publicationDay;
 	// ResultSet object
 	private ResultSet paperSet;
 	private ResultSet venueSet;
@@ -28,8 +28,8 @@ public class DataRecordProducer implements Runnable {
 	private ResultSet outCitationSet;
 	
 	public DataRecordProducer(final BlockingQueue<DenormalizedFields> queue,
-			final MySQLHandler mysql, final int publicationYear, 
-			final int publicationMonth, final int publicationDay)
+			final MySQLHandler mysql, final Integer publicationYear, 
+			final Integer publicationMonth, final Integer publicationDay)
 					throws CoreDBOpException {
 		if (queue == null) {
 			throw new CoreDBOpException("Given queue object is null");
@@ -54,11 +54,14 @@ public class DataRecordProducer implements Runnable {
 		outCitationSet = null;
 	}
 
-	public void fetchAndPushDenormalizedFields(int publicationYear)
+	public void fetchAndPushDenormalizedFields(Integer publicationYear, 
+	        Integer publicationMonth, Integer publicationDay)
 			throws CoreDBOpException {
 		// get the numOfRecords records from paper table
 		try {
-			paperSet = coreOps.getPaperFieldsByYear(publicationYear);
+			//paperSet = coreOps.getPaperFieldsByYear(publicationYear);
+			paperSet = coreOps.getPaperFieldsByPubDate(publicationYear, 
+			        publicationMonth, publicationDay);
 		} catch (MySQLProviderException e1) {
 			throw new CoreDBOpException(e1.getMessage());
 		}
@@ -145,7 +148,8 @@ public class DataRecordProducer implements Runnable {
 	public void run() {
 		try {
 			// push all the papers for this publication year
-			fetchAndPushDenormalizedFields(this.publicationYear);
+			fetchAndPushDenormalizedFields(this.publicationYear, 
+			        this.publicationMonth, this.publicationDay);
 			// push a empty paper
 			pushEmptyDenormalizedFields();
 		} catch (CoreDBOpException e) {

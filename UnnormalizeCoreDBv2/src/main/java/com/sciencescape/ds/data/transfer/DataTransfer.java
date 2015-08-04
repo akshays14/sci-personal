@@ -35,11 +35,11 @@ public final class DataTransfer {
 	/**!< output hbase table */
 	private String hbaseTable;
 	/**!< target publication year */
-	private String targetYear;
+	private Integer targetYear;
     /**!< target publication month */
-    private String targetMonth;
+    private Integer targetMonth;
     /**!< target publication day */
-    private String targetDay;
+    private Integer targetDay;
 	/**!< deployment environment */
 	private String deploymentEnvironment;
 	/**!< source directory */
@@ -96,7 +96,7 @@ public final class DataTransfer {
 		logger.info("Output HBase Table : {}.", hbaseTable);
 
 		// set the target number of year
-		targetYear = ns.getString(Constants.CLA.PAPER_PUBLICATION_YEAR_ARG);
+		targetYear = ns.getInt(Constants.CLA.PAPER_PUBLICATION_YEAR_ARG);
 		if (targetYear == null) {
 			throw (new IllegalArgumentException(
 					"Target year of publicatoin table must be specified"));
@@ -104,11 +104,11 @@ public final class DataTransfer {
 		logger.info("Target year of publication : {}.", targetYear);
 
 	    // set the target number of month
-        targetMonth = ns.getString(Constants.CLA.PAPER_PUBLICATION_MONTH_ARG);
+        targetMonth = ns.getInt(Constants.CLA.PAPER_PUBLICATION_MONTH_ARG);
         logger.info("Target month of publication : {}.", targetMonth);
 
         // set the target number of day
-        targetYear = ns.getString(Constants.CLA.PAPER_PUBLICATION_DAY_ARG);
+        targetDay = ns.getInt(Constants.CLA.PAPER_PUBLICATION_DAY_ARG);
         logger.info("Target day of publication : {}.", targetDay);
 
 		// read the environment variables
@@ -197,8 +197,8 @@ public final class DataTransfer {
 		DataRecordProducer queueProducer = null;
 		DataRecordConsumer queueConsumer = null;
 		try {
-			queueProducer = new DataRecordProducer(queue, my,
-					Integer.parseInt(dataTransfer.targetYear));
+			queueProducer = new DataRecordProducer(queue, my, dataTransfer.targetYear,
+			        dataTransfer.targetMonth, dataTransfer.targetDay);
 			queueConsumer = new DataRecordConsumer(queue, hh);
 		} catch (CoreDBOpException e) {
 			System.err.println(e.getMessage());
@@ -210,9 +210,7 @@ public final class DataTransfer {
 		// start the timer
 		long startTime = System.currentTimeMillis();
 
-
 		// start the producer and consumer thread
-
 		Future<?> producer = executorService.submit(queueProducer);
 		Future<?> consumer = executorService.submit(queueConsumer);
 		try {

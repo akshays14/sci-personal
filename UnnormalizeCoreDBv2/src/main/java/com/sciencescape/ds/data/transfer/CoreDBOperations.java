@@ -214,8 +214,8 @@ public class CoreDBOperations {
 		return (resultSet);
 	}
 
-	ResultSet getPaperFieldsByPubDate(int publicationYear, 
-	        int publicationMonth, int publicationDay) 
+	ResultSet getPaperFieldsByPubDate(Integer publicationYear, 
+	        Integer publicationMonth, Integer publicationDay) 
 	                throws MySQLProviderException {
 	    Logger logger = LoggerFactory.getLogger(CoreDBOperations.class);
 	    String query = null;
@@ -239,7 +239,7 @@ public class CoreDBOperations {
 	    strBuff.append(publicationYear);
 	    
 	    // add month clause only if it is greater than zero
-	    if (publicationMonth > 0) {
+	    if (publicationMonth != null & publicationMonth > 0) {
 	        strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 	        strBuff.append(DBMSConstants.MySQLKeyWords.AND);
 	        strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
@@ -250,7 +250,7 @@ public class CoreDBOperations {
 	        strBuff.append(publicationMonth);
 
 	        // add day clause only if day and month is greater than zero
-	        if (publicationDay > 0) {
+	        if (publicationDay != null && publicationDay > 0) {
 	            strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 	            strBuff.append(DBMSConstants.MySQLKeyWords.AND);
 	            strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
