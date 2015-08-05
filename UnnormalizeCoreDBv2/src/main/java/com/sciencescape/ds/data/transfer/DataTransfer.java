@@ -36,10 +36,10 @@ public final class DataTransfer {
 	private String hbaseTable;
 	/**!< target publication year */
 	private Integer targetYear;
-    /**!< target publication month */
-    private Integer targetMonth;
-    /**!< target publication day */
-    private Integer targetDay;
+	/**!< target publication month */
+	private Integer targetMonth;
+	/**!< target publication day */
+	private Integer targetDay;
 	/**!< deployment environment */
 	private String deploymentEnvironment;
 	/**!< source directory */
@@ -55,28 +55,31 @@ public final class DataTransfer {
 	 */
 	public DataTransfer(final String[] args) {
 		/* specify expected command line arguments */
-	    ArgumentParser parser = ArgumentParsers
-	            .newArgumentParser(Constants.CLA.PROGRAM_NAME)
-	            .defaultHelp(true)
-	            .description(Constants.CLA.PROGRAM_DESCRIPTION);
-	    // output hbase table
-	    parser.addArgument(Constants.CLA.OUTPUT_TABLE_OPT_SHORT,
-	            Constants.CLA.OUTPUT_TABLE_OPT_LONG).required(true)
-	    .help(Constants.CLA.OUTPUT_TABLE_OPT_DESCRIPTION);
-	    // target year
-	    parser.addArgument(Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_SHORT,
-	            Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_LONG).required(true)
-	    .help(Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_DESCRIPTION);
+		ArgumentParser parser = ArgumentParsers
+				.newArgumentParser(Constants.CLA.PROGRAM_NAME)
+				.defaultHelp(true)
+				.description(Constants.CLA.PROGRAM_DESCRIPTION);
+		// output hbase table
+		parser.addArgument(Constants.CLA.OUTPUT_TABLE_OPT_SHORT,
+				Constants.CLA.OUTPUT_TABLE_OPT_LONG).required(true)
+		.help(Constants.CLA.OUTPUT_TABLE_OPT_DESCRIPTION);
+		// target year
+		parser.addArgument(Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_SHORT,
+				Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_LONG).required(true)
+		.help(Constants.CLA.PAPER_PUBLICATION_YEAR_OPT_DESCRIPTION)
+		.type(Integer.class);
 
-	    // target month
-	    parser.addArgument(Constants.CLA.PAPER_PUBLICATION_MONTH_OPT_SHORT,
-	            Constants.CLA.PAPER_PUBLICATION_MONTH_OPT_LONG)
-	    .help(Constants.CLA.PAPER_PUBLICATION_MONTH_OPT_DESCRIPTION);
+		// target month
+		parser.addArgument(Constants.CLA.PAPER_PUBLICATION_MONTH_OPT_SHORT,
+				Constants.CLA.PAPER_PUBLICATION_MONTH_OPT_LONG)
+		.help(Constants.CLA.PAPER_PUBLICATION_MONTH_OPT_DESCRIPTION)
+		.type(Integer.class);
 
-	    // target day
-	    parser.addArgument(Constants.CLA.PAPER_PUBLICATION_DAY_OPT_SHORT,
-	            Constants.CLA.PAPER_PUBLICATION_DAY_OPT_LONG)
-	    .help(Constants.CLA.PAPER_PUBLICATION_DAY_OPT_DESCRIPTION);
+		// target day
+		parser.addArgument(Constants.CLA.PAPER_PUBLICATION_DAY_OPT_SHORT,
+				Constants.CLA.PAPER_PUBLICATION_DAY_OPT_LONG)
+		.help(Constants.CLA.PAPER_PUBLICATION_DAY_OPT_DESCRIPTION)
+		.type(Integer.class);
 
 		// parse the arguments
 		Namespace ns = null;
@@ -93,7 +96,7 @@ public final class DataTransfer {
 			throw (new IllegalArgumentException(
 					"Output hbase table must be provided"));
 		}
-		logger.info("Output HBase Table : {}.", hbaseTable);
+		logger.info("Output HBase Table : {}", hbaseTable);
 
 		// set the target number of year
 		targetYear = ns.getInt(Constants.CLA.PAPER_PUBLICATION_YEAR_ARG);
@@ -101,15 +104,20 @@ public final class DataTransfer {
 			throw (new IllegalArgumentException(
 					"Target year of publicatoin table must be specified"));
 		}
-		logger.info("Target year of publication : {}.", targetYear);
+		//targetYear = Integer.valueOf(targetYearS);
+		logger.info("Target year of publication : {}", targetYear);
 
-	    // set the target number of month
-        targetMonth = ns.getInt(Constants.CLA.PAPER_PUBLICATION_MONTH_ARG);
-        logger.info("Target month of publication : {}.", targetMonth);
+		// set the target number of month
+		targetMonth = ns.getInt(Constants.CLA.PAPER_PUBLICATION_MONTH_ARG);
+		if (targetMonth == null) {
+			logger.info("Target month of publication is not specified");
+		} else {
+			logger.info("Target month of publication : {}", targetMonth);
+		}
 
-        // set the target number of day
-        targetDay = ns.getInt(Constants.CLA.PAPER_PUBLICATION_DAY_ARG);
-        logger.info("Target day of publication : {}.", targetDay);
+		// set the target number of day
+		targetDay = ns.getInt(Constants.CLA.PAPER_PUBLICATION_DAY_ARG);
+		logger.info("Target day of publication : {}", targetDay);
 
 		// read the environment variables
 		this.readEnvironmentVariables();
@@ -198,7 +206,7 @@ public final class DataTransfer {
 		DataRecordConsumer queueConsumer = null;
 		try {
 			queueProducer = new DataRecordProducer(queue, my, dataTransfer.targetYear,
-			        dataTransfer.targetMonth, dataTransfer.targetDay);
+					dataTransfer.targetMonth, dataTransfer.targetDay);
 			queueConsumer = new DataRecordConsumer(queue, hh);
 		} catch (CoreDBOpException e) {
 			System.err.println(e.getMessage());
