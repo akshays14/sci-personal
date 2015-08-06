@@ -238,8 +238,9 @@ public class CoreDBOperations {
 		strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 		strBuff.append(publicationYear);
 		
-		// add month clause only if it is greater than zero
-		if (publicationMonth != null && publicationMonth > 0) {
+		// add month clause
+		if (publicationMonth != null) {
+			if (publicationMonth >= 0) {
 			strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 			strBuff.append(DBMSConstants.MySQLKeyWords.AND);
 			strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
@@ -248,6 +249,17 @@ public class CoreDBOperations {
 			strBuff.append(DBMSConstants.MySQLKeyWords.EQUALS);
 			strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
 			strBuff.append(publicationMonth);
+			} else {
+				// handle the month being null (in mysql) case
+				strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+				strBuff.append(DBMSConstants.MySQLKeyWords.AND);
+				strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+				strBuff.append(CoreDBConstants.PaperFields.MONTH);
+				strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+				strBuff.append(DBMSConstants.MySQLKeyWords.IS);
+				strBuff.append(DBMSConstants.MySQLKeyWords.SPACE);
+				strBuff.append(DBMSConstants.MySQLKeyWords.NULL);
+			}
 
 			// add day clause only if day and month is greater than zero
 			if (publicationDay != null && publicationDay > 0) {
