@@ -175,8 +175,11 @@ public class HbaseHandler {
 		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.YEAR), Bytes.toBytes(df.get_year()));
 		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.MONTH), Bytes.toBytes(df.get_month()));
 		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.DAY), Bytes.toBytes(df.get_day()));
-		// cannot be null
-		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.PM_RELEASED), Bytes.toBytes(df.get_datePmReleased()));
+		// cannot be null (but can be all 0 .. like '0000-00-00 00:00:00')
+		// which our JDBC would convert to NULL so need to handle null
+		if(df.get_datePmReleased() != null) {
+			p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.PM_RELEASED), Bytes.toBytes(df.get_datePmReleased()));
+		}
 		// cannot be null
 		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.DATE_IMPORTED), Bytes.toBytes(df.get_dateImported()));
 	}
