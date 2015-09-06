@@ -41,3 +41,23 @@ mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -D
 Example:
 
 for i in {2012..2014}; do for j in {-1..12}; do mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -Dexec.args="-t paper_v2_prod -y 2013 -m $j"; sleep 20; done; done | tee -a ~/logs/denormalization.log
+
+
+For version 4
++++++++++++++
+
+1) Create pre-splitted table (with proper version, compression and datablock encoding)
+
+From SRCDIR (file having pom.xml)
+
+partition_range=`python scripts/hbase_partition.py <NUMBER_OF_PARTITIONS>`
+echo "create 'paper_v4_dev', {NAME => 'ID', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'D', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'CI', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'EF', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'V', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'A', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'I', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'CO', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {SPLITS => $partition_range}" | hbase shell
+
+Note : We have removed 'P' (or Paper) Column Family.
+
+2) Running from command line:
+mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -Dexec.args="--help"
+
+Example:
+
+for i in {2012..2014}; do for j in {-1..12}; do mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -Dexec.args="-t paper_v2_prod -y $i -m $j"; sleep 20; done; done | tee -a ~/logs/denormalization.log
