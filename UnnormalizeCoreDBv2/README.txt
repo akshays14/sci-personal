@@ -37,3 +37,7 @@ create 'paper_v2_dev', 'ID', 'P', 'D', 'CI', 'EF', 'V', 'A', 'I', 'CO'
 
 2) Running from command line:
 mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -Dexec.args="--help"
+
+Example:
+
+for i in {2012..2014}; do for j in {-1..12}; do mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -Dexec.args="-t paper_v2_prod -y 2013 -m $j"; sleep 20; done; done | tee -a ~/logs/denormalization.log

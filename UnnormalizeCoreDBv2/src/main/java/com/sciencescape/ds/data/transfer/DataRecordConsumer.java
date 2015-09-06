@@ -39,10 +39,12 @@ public class DataRecordConsumer implements Runnable {
 				hh.writeRecord(df);
 				recordsProcessed++;
 			} catch (InterruptedException e) {
-				System.err.println(e.getMessage());
+				System.out.println("Failed writing to HBasef for id : " + df.get_id());
+				System.out.println(e.getMessage());
 				e.printStackTrace();
 			} catch (IOException e) {
-				System.err.println(e.getMessage());
+				System.out.println("Failed writing to HBasef for id : " + df.get_id());
+				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
 		}

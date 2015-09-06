@@ -109,6 +109,9 @@ public class HbaseHandler {
 		// columns in ID CF
 		byte[] idCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.ID);
 		p.addImmutable(idCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.PMID), Bytes.toBytes(df.get_pmId()));
+		
+		/*
+		 * NOTE : Commented for paper_v4
 		if(df.get_doi() != null) {
 			p.addImmutable(idCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.DOI), Bytes.toBytes(df.get_doi()));
 		}
@@ -170,18 +173,29 @@ public class HbaseHandler {
 			p.addImmutable(paperCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.SOURCE), Bytes.toBytes(df.get_source()));
 		}
 
+*/
 		// columns in DATE CF
 		byte[] dateCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.DATE);
 		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.YEAR), Bytes.toBytes(df.get_year()));
 		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.MONTH), Bytes.toBytes(df.get_month()));
-		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.DAY), Bytes.toBytes(df.get_day()));
+		
+		/*
+		 * NOTE : Commented for paper_v4
+		 * p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.DAY), Bytes.toBytes(df.get_day()));
+		*/
+		
 		// cannot be null (but can be all 0 .. like '0000-00-00 00:00:00')
 		// which our JDBC would convert to NULL so need to handle null
+		
+		/*
+		 * Commented for paper_v4
+		 *
 		if(df.get_datePmReleased() != null) {
 			p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.PM_RELEASED), Bytes.toBytes(df.get_datePmReleased()));
 		}
 		// cannot be null
 		p.addImmutable(dateCFBytes, Bytes.toBytes(NoSQLConstants.PaperColumns.DATE_IMPORTED), Bytes.toBytes(df.get_dateImported()));
+		*/
 	}
 
 	public void writeCitationFields(Put p, DenormalizedFields df) throws IOException {
@@ -195,15 +209,29 @@ public class HbaseHandler {
 			for (Map.Entry<Long, CitationFields> entry : df.get_inCitations().entrySet()) {
 				long id = entry.getValue().getId();
 				numberOfIncomingCitations++;
+				
+				/*
+				 * Commented for paper_v4
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_ID, id), Bytes.toBytes(entry.getValue().getId()));
+				*/
+				
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_PAPER_ID, id), Bytes.toBytes(entry.getValue().getIdFromPaper()));
+				
+				/*
+				 * Commented for paper_v4
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_DOI, id), Bytes.toBytes(entry.getValue().getDoiFromPaper()));
+				*/
+				
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_MONTH, id), Bytes.toBytes(entry.getValue().getMonth()));
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_YEAR, id), Bytes.toBytes(entry.getValue().getYear()));
+				
+				/*
+				 * Commented for paper_v4
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_CONF_SCORE, id), Bytes.toBytes(entry.getValue().getConfidenceScore()));
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_CONF_LEVEL, id), Bytes.toBytes(entry.getValue().getConfidenceLevel()));
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_SOURCE, id), Bytes.toBytes(entry.getValue().getSource()));
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.IN_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getDateImported()));
+				*/
 			}
 		}
 		p.addImmutable(citationCFBytes, Bytes.toBytes(NoSQLConstants.CitationColumns.IN_COUNT), Bytes.toBytes(numberOfIncomingCitations));
@@ -214,8 +242,15 @@ public class HbaseHandler {
 			for (Map.Entry<Long, CitationFields> entry : df.get_outCitations().entrySet()) {
 				long id = entry.getValue().getId();
 				numberOfOutgoingCitations++;
+				
+				/*
+				 * Commented for paper_v4
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_ID, id), Bytes.toBytes(entry.getValue().getId()));
+				*/
+				
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_PAPER_ID, id), Bytes.toBytes(entry.getValue().getIdToPaper()));
+				
+				/* Commented for paper_v4
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_DOI, id), Bytes.toBytes(entry.getValue().getDoiToPaper()));
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_MONTH, id), Bytes.toBytes(entry.getValue().getMonth()));
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_YEAR, id), Bytes.toBytes(entry.getValue().getYear()));
@@ -223,6 +258,7 @@ public class HbaseHandler {
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_CONF_LEVEL, id), Bytes.toBytes(entry.getValue().getConfidenceLevel()));
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_SOURCE, id), Bytes.toBytes(entry.getValue().getSource()));
 				p.addImmutable(citationCFBytes, buildFieldWithId(NoSQLConstants.CitationColumns.OUT_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getDateImported()));
+				*/
 			}
 		}
 		p.addImmutable(citationCFBytes, Bytes.toBytes(NoSQLConstants.CitationColumns.OUT_COUNT), Bytes.toBytes(numberOfOutgoingCitations));
@@ -237,12 +273,22 @@ public class HbaseHandler {
 		byte[] venueCFBytes = Bytes.toBytes(NoSQLConstants.ColumnFamilies.VENUE);
 
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.ID), Bytes.toBytes(df.get_venueId()));
+		
+		/*
+		 * Commented for paper_v4
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.ISO_ABRV), Bytes.toBytes(df.get_vIsoAbbreviation()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.TYPE), Bytes.toBytes(df.get_vType()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.TITLE), Bytes.toBytes(df.get_vTitle()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.TITLE_WD), Bytes.toBytes(df.get_vTitleWithoutDiacritics()));
+		*/
+		
+		
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.START_YEAR), Bytes.toBytes(df.get_vYearStart()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.END_YEAR), Bytes.toBytes(df.get_vYearEnd()));
+		
+		/*
+		 * Commented for paper_v4
+		 *
 		if (df.get_vFrequency() != null) {
 			p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.FREQUENCY), Bytes.toBytes(df.get_vFrequency()));
 		}
@@ -255,12 +301,19 @@ public class HbaseHandler {
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.SOURCE), Bytes.toBytes(df.get_vSource()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.ISO_WD), Bytes.toBytes(df.get_vIsoWithoutDiacritic()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.EF_MEDIAN_RAW), Bytes.toBytes(df.get_vEFMedianRaw()));
+		
+		*/
+		
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.EF_MEDIAN_NORMALIZED), Bytes.toBytes(df.get_vEFMedianNormalized()));
+		
+		/*
+		 * Commented for paper_v4
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.DATE_IMPORTED), Bytes.toBytes(df.get_vDateImported()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.MAPPING_SOURCE), Bytes.toBytes(df.get_vMapSource()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.CONFIDENCE_SCORE), Bytes.toBytes(df.get_vMapConfidenceScore()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.CONFIDENCE_LEVEL), Bytes.toBytes(df.get_vMapConfidenceLevel()));
 		p.addImmutable(venueCFBytes, Bytes.toBytes(NoSQLConstants.VenueColumns.MAPPING_DATE_IMPORTED), Bytes.toBytes(df.get_vMapDateImported()));
+		*/
 	}
 
 	public void writeAuthorFields(Put p, DenormalizedFields df) throws IOException {
@@ -269,7 +322,12 @@ public class HbaseHandler {
 		if (df.get_authors() != null) {
 			for (Map.Entry<Long, AuthorFields> entry : df.get_authors().entrySet()) {
 				long id = entry.getValue().getId();
+				
 				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.ID, id), Bytes.toBytes(entry.getValue().getId()));
+				
+				/*
+				 * Commented for paper_v4
+				 *
 				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.NAME, id), Bytes.toBytes(entry.getValue().getName()));
 				if (entry.getValue().getHomepage() != null) {
 					p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.HOMEPAGE, id), Bytes.toBytes(entry.getValue().getHomepage()));
@@ -279,7 +337,12 @@ public class HbaseHandler {
 				if (entry.getValue().getOrcidId() != null) {
 					p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.ORCID_ID, id), Bytes.toBytes(entry.getValue().getOrcidId()));
 				}
+				*/
 				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.INDEX, id), Bytes.toBytes(entry.getValue().getIndex()));
+				
+				/*
+				 * Commented for paper_v4
+				 *
 				if (entry.getValue().getRawName() != null) {
 					p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.RAW_NAME, id), Bytes.toBytes(entry.getValue().getRawName()));
 				}
@@ -289,6 +352,7 @@ public class HbaseHandler {
 				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.DISAMBIGUATION_SCORE, id), Bytes.toBytes(entry.getValue().getDisambiguationScore()));
 				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.MAPPING_SOURCE, id), Bytes.toBytes(entry.getValue().getMappingSource()));
 				p.addImmutable(authorCFBytes, buildFieldWithId(NoSQLConstants.AuthorColumns.MAPPING_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getMappingDateImported()));
+				*/
 			}
 		}
 	}
@@ -299,7 +363,12 @@ public class HbaseHandler {
 		if (df.get_institution() != null) {
 			for (Map.Entry<Long, InstitutionFields> entry : df.get_institution().entrySet()) {
 				long id = entry.getValue().getId();
+				
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.ID, id), Bytes.toBytes(entry.getValue().getId()));
+				
+				/*
+				 * Commented for paper_v4
+				 *
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.NAME, id), Bytes.toBytes(entry.getValue().getName()));
 				if (entry.getValue().getExternalName() != null) {
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.EXTERNAL_NAME, id), Bytes.toBytes(entry.getValue().getExternalName()));
@@ -317,7 +386,12 @@ public class HbaseHandler {
 				}
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.TYPE, id), Bytes.toBytes(entry.getValue().getType()));
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.ID_PARENT, id), Bytes.toBytes(entry.getValue().getIdParent()));
+				*/
+				
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.ID_PARENT_HIGHEST, id), Bytes.toBytes(entry.getValue().getIdParentHighest()));
+				/*
+				 * Commented for paper_v4
+				 *
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.EF, id), Bytes.toBytes(entry.getValue().getEigenfactor()));
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.SOURCE, id), Bytes.toBytes(entry.getValue().getInstitutionSource()));
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getInstitutionDateImported()));
@@ -332,6 +406,7 @@ public class HbaseHandler {
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.CONFIDENCE_LEVEL, id), Bytes.toBytes(entry.getValue().getConfidenceLevel()));
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.MAPPING_SOURCE, id), Bytes.toBytes(entry.getValue().getMappingSource()));
 				p.addImmutable(instCFBytes, buildFieldWithId(NoSQLConstants.InstitutionColumns.MAPPING_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getMappingDateImported()));
+				*/
 			}
 		}
 	}
@@ -343,6 +418,10 @@ public class HbaseHandler {
 			for (Map.Entry<Long, ConceptFields> entry : df.get_concepts().entrySet()) {
 				long id = entry.getValue().getId();
 				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.ID, id), Bytes.toBytes(entry.getValue().getId()));
+				
+				/*
+				 * Commented for paper_v4
+				 *
 				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.ID_SOURCE, id), Bytes.toBytes(entry.getValue().getIdSource()));
 				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.NAME, id), Bytes.toBytes(entry.getValue().getName()));
 				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.IS_ACTIVE, id), Bytes.toBytes(entry.getValue().isActive()));
@@ -366,7 +445,7 @@ public class HbaseHandler {
 				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.CONFIDENCE_SCORE, id), Bytes.toBytes(entry.getValue().getConfidenceScore()));
 				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.CONFIDENCE_LEVEL, id), Bytes.toBytes(entry.getValue().getConfidenceLevel()));
 				p.addImmutable(conceptCFBytes, buildFieldWithId(NoSQLConstants.ConceptColumns.MAPPING_DATE_IMPORTED, id), Bytes.toBytes(entry.getValue().getMappingDateImported()));
-
+				 */
 			}
 		}
 	}
