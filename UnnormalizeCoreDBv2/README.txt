@@ -60,4 +60,4 @@ mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -D
 
 Example:
 
-for i in {2012..2014}; do for j in {-1..12}; do mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -Dexec.args="-t paper_v2_prod -y $i -m $j"; sleep 20; done; done | tee -a ~/logs/denormalization.log
+for i in {2012..2014}; do for j in {-1..12}; do mvn exec:java -Dexec.mainClass=com.sciencescape.ds.data.transfer.DataTransfer -Dexec.args="-t paper_v4_dev -y $i -m $j"; sleep 20; done; done | tee -a ~/logs/denormalization.log
