@@ -50,7 +50,7 @@ For version 4
 
 From SRCDIR (file having pom.xml)
 
-partition_range=`python scripts/hbase_partition.py <NUMBER_OF_PARTITIONS>`
+partition_range=`python scripts/hbase_partitions.py <NUMBER_OF_PARTITIONS>`
 echo "create 'paper_v4_dev', {NAME => 'ID', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'D', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'CI', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'EF', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'V', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'A', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'I', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {NAME => 'CO', VERSIONS => 1, COMPRESSION => 'SNAPPY', DATA_BLOCK_ENCODING => 'FAST_DIFF'}, {SPLITS => $partition_range}" | hbase shell
 
 Note : We have removed 'P' (or Paper) Column Family.
